@@ -2,7 +2,7 @@ require "spec_helper"
 
 describe ActiveArchive::Configuration do
 
-  after {
+  after(:all) {
     ActiveArchive.configure do |config|
       config.all_records_archivable  = false
       config.dependent_record_window = 3.seconds
