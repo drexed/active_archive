@@ -37,7 +37,7 @@ if defined?(Rails)
 
       initializer 'active_archive' do |app|
         ActiveArchive::Railtie.instance_eval do
-          [app.config.i18n.available_locales].each do |locale|
+          [app.config.i18n.available_locales].flatten.each do |locale|
             (I18n.load_path << path(locale)) if File.file?(path(locale))
           end
         end
