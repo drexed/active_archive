@@ -71,7 +71,7 @@ module ActiveArchive
 
     def get_dependent_records
       dependent_records = {}
-      self.class.reflections.each do |key, reflection|
+      self.class.reflections.lazy.each do |key, reflection|
         if reflection.options[:dependent] == :destroy
           next unless records = self.send(key)
           if records.respond_to?(:size)
@@ -88,7 +88,7 @@ module ActiveArchive
     end
 
     def permanently_delete_records(dependent_records)
-      dependent_records.each do |klass, ids|
+      dependent_records.lazy.each do |klass, ids|
         ids.each do |id|
           record = begin
             klass.unscoped.find(id)
@@ -110,11 +110,12 @@ module ActiveArchive
 
     def unarchive_destroyed_dependent_records
       self.class.reflections
-                .select { |name, reflection| (reflection.options[:dependent].to_s == "destroy") && reflection.klass.archivable? }
+                .lazy
+                .select { |name, reflection| (reflection.options[:dependent].to_s == 'destroy'.freeze) && reflection.klass.archivable? }
                 .each do |name, reflection|
-                  cardinality = reflection.macro.to_s.gsub('has_', '')
+                  cardinality = reflection.macro.to_s.gsub('has_'.freeze, ''.freeze)
 
-                  if cardinality == 'many'
+                  if cardinality == 'many'.freeze
                     records = archived_at.nil? ? send(name).unscoped : send(name).unscoped.where(
                         [
                           "#{reflection.quoted_table_name}.archived_at > ? AND #{reflection.quoted_table_name}.archived_at < ?",
@@ -122,13 +123,13 @@ module ActiveArchive
                           archived_at + ActiveArchive.configuration.dependent_record_window
                         ]
                       )
-                  elsif cardinality == 'one' or cardinality == 'belongs_to'
+                  elsif cardinality == 'one'.freeze or cardinality == 'belongs_to'.freeze
                     self.class.unscoped do
                       records = [] << send(name)
                     end
                   end
 
-                  [records].flatten.compact.each { |d| d.unarchive }
+                  [records].flatten.compact.lazy.each { |d| d.unarchive }
                   send(name, :reload)
                 end
     end
@@ -141,18 +142,18 @@ module ActiveArchive
       begin
         should_ignore_validations?(force) ? record.save(validate: false) : record.save!
 
-        if ::Gem::Version.new(::ActiveRecord::VERSION::STRING) < ::Gem::Version.new('4.2.0')
+        if ::Gem::Version.new(::ActiveRecord::VERSION::STRING) < ::Gem::Version.new('4.2.0'.freeze)
           @attributes       = record.attributes
           @attributes_cache = record.attributes.except(record.class.serialized_attributes.keys)
 
           if defined?(::ActiveRecord::AttributeMethods::Serialization::Attribute)
             serialized_attribute_class = ::ActiveRecord::AttributeMethods::Serialization::Attribute
-            self.class.serialized_attributes.each do |key, coder|
+            self.class.serialized_attributes.lazy.each do |key, coder|
               @attributes[key] = serialized_attribute_class.new(coder, @attributes[key], :unserialized) if @attributes.key?(key)
             end
           end
         else
-          @attributes = record.instance_variable_get('@attributes')
+          @attributes = record.instance_variable_get('@attributes'.freeze)
         end
       rescue Exception => e
         record.destroy
