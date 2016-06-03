@@ -2,7 +2,7 @@
 
 [![Gem Version](https://badge.fury.io/rb/active_archive.svg)](http://badge.fury.io/rb/active_archive)
 [![Build Status](https://travis-ci.org/drexed/active_archive.svg?branch=master)](https://travis-ci.org/drexed/active_archive)
-[![Coverage Status](https://coveralls.io/repos/drexed/active_archive/badge.png)](https://coveralls.io/r/drexed/active_archive)
+[![Coverage Status](https://coveralls.io/repos/github/drexed/active_archive/badge.svg?branch=master)](https://coveralls.io/github/drexed/active_archive?branch=master)
 
 ActiveArchive is a library for preventing database records from being destroyed.
 
@@ -11,7 +11,7 @@ ActiveArchive is a library for preventing database records from being destroyed.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'active_archive'
+gem "active_archive"
 ```
 
 And then execute:
@@ -90,8 +90,10 @@ User.unarchived.all #=> returns only unarchived record
 
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/active_archive/fork )
+Your contribution is welcome.
+
+1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
+3. Commit your changes (`git commit -am 'Added some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+5. Create new Pull Request

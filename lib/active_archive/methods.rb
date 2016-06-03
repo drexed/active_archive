@@ -2,7 +2,7 @@ module ActiveArchive
   module Methods
 
     def archivable?
-      columns.lazy.detect { |c| c.name == 'archived_at'.freeze }
+      columns.detect { |c| c.name == "archived_at" }
     end
 
     def archive_all(conditions=nil)
@@ -10,7 +10,7 @@ module ActiveArchive
     end
 
     def unarchive_all(conditions=nil)
-      (conditions ? where(conditions) : all).to_a.lazy.each { |r| r.unarchive }
+      (conditions ? where(conditions) : all).to_a.each { |r| r.unarchive }
     end
 
   end
