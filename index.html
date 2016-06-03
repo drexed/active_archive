@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>ActiveArchive by drexed</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>ActiveArchive</h1>
+        <p>Gem for soft-deleting ActiveRecord objects.</p>
+
+        <p class="view"><a href="https://github.com/drexed/active_archive">View the Project on GitHub <small>drexed/active_archive</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/drexed/active_archive/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/drexed/active_archive/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/drexed/active_archive">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="activearchive" class="anchor" href="#activearchive" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ActiveArchive</h1>
+
+<p><a href="http://badge.fury.io/rb/active_archive"><img src="https://badge.fury.io/rb/active_archive.svg" alt="Gem Version"></a>
+<a href="https://travis-ci.org/drexed/active_archive"><img src="https://travis-ci.org/drexed/active_archive.svg?branch=master" alt="Build Status"></a>
+<a href="https://coveralls.io/r/drexed/active_archive"><img src="https://coveralls.io/repos/drexed/active_archive/badge.png" alt="Coverage Status"></a></p>
+
+<p>ActiveArchive is a library for preventing database records from being destroyed.</p>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Add this line to your application's Gemfile:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">gem</span> <span class="pl-s"><span class="pl-pds">'</span>active_archive<span class="pl-pds">'</span></span></pre></div>
+
+<p>And then execute:</p>
+
+<pre><code>$ bundle
+</code></pre>
+
+<p>Or install it yourself as:</p>
+
+<pre><code>$ gem install active_archive
+</code></pre>
+
+<h2>
+<a id="table-of-contents" class="anchor" href="#table-of-contents" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Table of Contents</h2>
+
+<ul>
+<li><a href="#configurations">Configurations</a></li>
+<li><a href="#methods">Methods</a></li>
+<li><a href="#scopes">Scopes</a></li>
+</ul>
+
+<h2>
+<a id="configurations" class="anchor" href="#configurations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configurations</h2>
+
+<p><strong>Options:</strong></p>
+
+<ul>
+<li>all_records_archivable</li>
+<li>dependent_record_window</li>
+</ul>
+
+<p><code>rails generate active_archive:install</code> will generate the following <code>active_archive.rb</code> file:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-c"># config/initalizers/active_archive.rb</span>
+
+<span class="pl-c1">ActiveArchive</span>.configure <span class="pl-k">do </span>|<span class="pl-smi">config</span>|
+  <span class="pl-c"># option = default</span>
+
+  config.all_records_archivable  <span class="pl-k">=</span> <span class="pl-c1">false</span>
+  config.dependent_record_window <span class="pl-k">=</span> <span class="pl-c1">3</span>.seconds
+<span class="pl-k">end</span></pre></div>
+
+<h2>
+<a id="methods" class="anchor" href="#methods" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Methods</h2>
+
+<p><strong>Options:</strong></p>
+
+<ul>
+<li>archive</li>
+<li>destroy</li>
+<li>destroy_all</li>
+<li>delete</li>
+<li>delete_all</li>
+<li>unarchive</li>
+<li>unarchive_all</li>
+</ul>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-c1">User</span>.first.archive         <span class="pl-c">#=&gt; archives User record and dependents</span>
+<span class="pl-c1">User</span>.first.destroy         <span class="pl-c">#=&gt; archives User record and dependents</span>
+<span class="pl-c1">User</span>.first.delete          <span class="pl-c">#=&gt; deletes User record and dependents</span>
+<span class="pl-c1">User</span>.first.unarchive       <span class="pl-c">#=&gt; unarchives User record and dependents</span>
+
+<span class="pl-c1">User</span>.first.to_archival     <span class="pl-c">#=&gt; returns archival state string</span>
+
+<span class="pl-c1">User</span>.first.archive(<span class="pl-c1">:force</span>) <span class="pl-c">#=&gt; destroys User record and dependents</span>
+<span class="pl-c1">User</span>.first.destroy(<span class="pl-c1">:force</span>) <span class="pl-c">#=&gt; destroys User record and dependents</span>
+
+<span class="pl-c1">User</span>.archive_all           <span class="pl-c">#=&gt; archives all User records and dependents</span>
+<span class="pl-c1">User</span>.destroy_all           <span class="pl-c">#=&gt; archives all User records and dependents</span>
+<span class="pl-c1">User</span>.delete_all            <span class="pl-c">#=&gt; deletes all User records and dependents</span>
+<span class="pl-c1">User</span>.unarchive_all         <span class="pl-c">#=&gt; unarchives all User record and dependents</span></pre></div>
+
+<h2>
+<a id="scopes" class="anchor" href="#scopes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Scopes</h2>
+
+<p><strong>Options:</strong></p>
+
+<ul>
+<li>default</li>
+<li>archived</li>
+<li>unarchived</li>
+</ul>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-c1">User</span>.all            <span class="pl-c">#=&gt; returns all records</span>
+<span class="pl-c1">User</span>.archived.all   <span class="pl-c">#=&gt; returns only archived record</span>
+<span class="pl-c1">User</span>.unarchived.all <span class="pl-c">#=&gt; returns only unarchived record</span></pre></div>
+
+<h2>
+<a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributing</h2>
+
+<ol>
+<li>Fork it ( <a href="https://github.com/%5Bmy-github-username%5D/active_archive/fork">https://github.com/[my-github-username]/active_archive/fork</a> )</li>
+<li>Create your feature branch (<code>git checkout -b my-new-feature</code>)</li>
+<li>Commit your changes (<code>git commit -am 'Add some feature'</code>)</li>
+<li>Push to the branch (<code>git push origin my-new-feature</code>)</li>
+<li>Create a new Pull Request</li>
+</ol>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/drexed">drexed</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
