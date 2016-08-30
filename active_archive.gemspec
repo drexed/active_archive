@@ -20,11 +20,6 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'rails'
 
-  spec.add_development_dependency 'fasterer'
-  spec.add_development_dependency 'flay'
-  spec.add_development_dependency 'reek'
-  spec.add_development_dependency 'rubocop'
-
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'coveralls'
   spec.add_development_dependency 'rake'
@@ -32,4 +27,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'sqlite3'
   spec.add_development_dependency 'database_cleaner'
   spec.add_development_dependency 'generator_spec'
+  spec.add_development_dependency 'fasterer'
+  spec.add_development_dependency 'flay'
+  spec.add_development_dependency 'reek'
+  spec.add_development_dependency 'rubocop'
 end
