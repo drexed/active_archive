@@ -11,7 +11,7 @@ ActiveArchive is a library for preventing database records from being destroyed.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem "active_archive"
+gem 'active_archive'
 ```
 
 And then execute:
@@ -37,7 +37,7 @@ Or install it yourself as:
 `rails generate active_archive:install` will generate the following `active_archive.rb` file:
 
 ```ruby
-# config/initalizers/active_archive.rb
+# Path: ../config/initalizers/active_archive.rb
 
 ActiveArchive::Settings.configure do |config|
   config.all_records_archivable = false
