@@ -153,7 +153,7 @@ module ActiveArchive
 
     def set_record_window(_, name, reflection)
       quoted_table_name = reflection.quoted_table_name
-      window = ActiveArchive.configuration.dependent_record_window
+      window = ActiveArchive::Settings.config.dependent_record_window
 
       send(name).unscope(where: :archived_at)
                 .where([
@@ -177,3 +177,5 @@ module ActiveArchive
 
   end
 end
+
+ActiveRecord::Base.include(ActiveArchive::Base)

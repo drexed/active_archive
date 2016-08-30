@@ -1,21 +1,8 @@
 require 'rails'
 require 'active_archive/version'
-require 'active_archive/configuration'
+require 'active_archive/settings'
 
 module ActiveArchive
-
-  class << self
-    attr_accessor :configuration
-
-    def configuration
-      @configuration ||= Configuration.new
-    end
-
-    def configure
-      yield(configuration)
-    end
-  end
-
   class Railtie < ::Rails::Railtie
 
     initializer 'active_archive' do |app|
@@ -40,7 +27,3 @@ require 'active_archive/methods'
 require 'active_archive/scopes'
 require 'active_archive/base'
 require 'generators/active_archive/install_generator'
-
-ActiveSupport.on_load(:active_record) do
-  ActiveRecord::Base.include(ActiveArchive::Base)
-end

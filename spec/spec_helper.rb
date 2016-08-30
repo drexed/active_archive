@@ -14,19 +14,18 @@ module Rails
   end
 end
 
-I18n.load_path << File.expand_path('../../config/locales/en.yml', __FILE__)
-I18n.enforce_available_locales = false
-
-ActiveArchive.configure do |config|
-  config.all_records_archivable = true
-end
-
 spec_support_path = Pathname.new(File.expand_path('../spec/support', File.dirname(__FILE__)))
 spec_tmp_path = Pathname.new(File.expand_path('../spec/lib/generators/tmp', File.dirname(__FILE__)))
 
+I18n.load_path << File.expand_path('../../config/locales/en.yml', __FILE__)
+I18n.enforce_available_locales = false
+
+ActiveArchive::Settings.configure do |config|
+  config.all_records_archivable = true
+end
+
 ActiveRecord::Base.configurations = YAML.load_file(spec_support_path.join('config/database.yml'))
 ActiveRecord::Base.establish_connection
-
 load(spec_support_path.join('db/schema.rb')) if File.exist?(spec_support_path.join('db/schema.rb'))
 
 Dir.glob(spec_support_path.join('models/*.rb'))
