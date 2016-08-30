@@ -29,6 +29,7 @@ require "generators/active_archive/install_generator"
 
 ActiveSupport.on_load(:active_record) do
   ActiveRecord::Base.send(:include, ActiveArchive::Base)
+  ActiveRecord::ConnectionAdapters::TableDefinition.prepend(TableDefinition)
 end
 
 if defined?(Rails)

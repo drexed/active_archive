@@ -1,14 +1,16 @@
-module ActiveRecord
-  module ConnectionAdapters
-    class TableDefinition
+module TableDefinition
 
-      def timestamps_with_archived_at(options)
-        timestamps_without_archived_at(options)
-        column(:archived_at, :datetime) if ActiveArchive.configuration.all_records_archivable
-      end
+  def timestamps(*args)
+    options = args.extract_options!
+    options[:null] = false if options[:null].nil?
 
-      alias_method_chain(:timestamps, :archived_at)
+    column(:created_at, :datetime, options)
+    column(:updated_at, :datetime, options)
 
-    end
+    options[:null] = true
+    column(:archived_at, :datetime, options)
+
+    super(*args)
   end
+
 end

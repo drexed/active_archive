@@ -135,7 +135,6 @@ module ActiveArchive
         end
 
         [records].flatten.compact.each { |d| d.unarchive(force) }
-        send(name, :reload)
       end
     end
 
