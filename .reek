@@ -1,7 +1,20 @@
 ---
+Attribute:
+  enabled: false
+FeatureEnvy:
+  exclude:
+    - 'ActiveArchive::Base#retrieve_dependent_records'
 IrresponsibleModule:
+  enabled: false
+NilCheck:
+  enabled: false
+ManualDispatch:
   enabled: false
 NestedIterators:
   max_allowed_nesting: 2
 TooManyStatements:
   max_statements: 10
+  exclude:
+    - 'ActiveArchive::Base#retrieve_dependent_records'
+UtilityFunction:
+  enabled: false

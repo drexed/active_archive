@@ -33,9 +33,9 @@ module ActiveArchive
       I18n.t("active_archive.archival.#{archived? ? :archived : :unarchived}")
     end
 
-    def unarchive(options = nil)
+    def unarchive(opts = nil)
       with_transaction_returning_status do
-        (should_unarchive_parent_first?(options) ? unarchival.reverse : unarchival).each { |r| r.call(options) }
+        (should_unarchive_parent_first?(opts) ? unarchival.reverse : unarchival).each { |record| record.call(opts) }
         self
       end
     end
@@ -117,11 +117,13 @@ module ActiveArchive
     end
 
     def dependent_records_for_unarchival(name, reflection)
+      record = send(name)
+
       case reflection.macro.to_s.gsub('has_', '').to_sym
       when :many
-        records = archived_at ? set_record_window(send(name), name, reflection) : send(name)
+        records = archived_at ? set_record_window(record, name, reflection) : record
       when :one, :belongs_to
-        self.class.unscoped { records = [] << send(name) }
+        self.class.unscoped { records = [] << record }
       end
 
       [records].flatten.compact
@@ -151,12 +153,13 @@ module ActiveArchive
 
     def set_record_window(_, name, reflection)
       quoted_table_name = reflection.quoted_table_name
+      window = ActiveArchive.configuration.dependent_record_window
 
       send(name).unscope(where: :archived_at)
                 .where([
                          "#{quoted_table_name}.archived_at > ? AND #{quoted_table_name}.archived_at < ?",
-                         archived_at - ActiveArchive.configuration.dependent_record_window,
-                         archived_at + ActiveArchive.configuration.dependent_record_window
+                         archived_at - window,
+                         archived_at + window
                        ])
     end
 

@@ -2,7 +2,7 @@ module ActiveArchive
   module Methods
 
     def archivable?
-      columns.detect { |c| c.name == 'archived_at' }
+      columns.detect { |column| column.name == 'archived_at' }
     end
 
     def archive_all(conditions = nil)
