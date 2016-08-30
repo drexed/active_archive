@@ -1,27 +1,27 @@
-require "spec_helper"
+require 'spec_helper'
 
 describe ActiveArchive::Methods do
 
-  describe "#archivable?" do
+  describe '#archivable?' do
     # TODO
   end
 
-  describe "#archive_all" do
-    it "to be 0" do
+  describe '#archive_all' do
+    it 'to be 0' do
       3.times { Insurance.create! }
       Insurance.archive_all
 
       expect(Insurance.count).to eq(0)
     end
 
-    it "to be 3" do
+    it 'to be 3' do
       3.times { User.create! }
       User.archive_all
 
       expect(User.count).to eq(3)
     end
 
-    it "to be 2" do
+    it 'to be 2' do
       user = User.create!
       car  = user.cars.create!
       2.times { car.drivers.create! }
@@ -31,8 +31,8 @@ describe ActiveArchive::Methods do
     end
   end
 
-  describe "#unarchive_all" do
-    it "to be 0" do
+  describe '#unarchive_all' do
+    it 'to be 0' do
       3.times { Insurance.create! }
       Insurance.archive_all
       Insurance.unarchive_all
@@ -40,7 +40,7 @@ describe ActiveArchive::Methods do
       expect(Insurance.count).to eq(0)
     end
 
-    it "to be 3" do
+    it 'to be 3' do
       3.times { User.create! }
       User.archive_all
       User.unarchive_all
@@ -48,7 +48,7 @@ describe ActiveArchive::Methods do
       expect(User.count).to eq(3)
     end
 
-    it "to be false" do
+    it 'to be false' do
       user = User.create!
       car  = user.cars.create!
       2.times { car.drivers.create! }

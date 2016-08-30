@@ -1,17 +1,17 @@
-require "spec_helper"
+require 'spec_helper'
 
 describe ActiveArchive do
 
-  describe "#archive" do
-    context "user.archive" do
-      it "to be 1" do
+  describe '#archive' do
+    context 'user.archive' do
+      it 'to be 1' do
         user = User.create!
         user.archive
 
         expect(User.count).to eq(1)
       end
 
-      it "to not be nil" do
+      it 'to not be nil' do
         user = User.create!
         user.archive
 
@@ -19,8 +19,8 @@ describe ActiveArchive do
       end
     end
 
-    context "user.archive(:force)" do
-      it "to be 0" do
+    context 'user.archive(:force)' do
+      it 'to be 0' do
         user = User.create!
         user.archive(:force)
 
@@ -28,8 +28,8 @@ describe ActiveArchive do
       end
     end
 
-    context "user.bio.archive" do
-      it "to be true" do
+    context 'user.bio.archive' do
+      it 'to be true' do
         user = User.create!
         Bio.create!(user_id: user.id)
         user.bio.archive
@@ -37,7 +37,7 @@ describe ActiveArchive do
         expect(user.bio.archived?).to eq(true)
       end
 
-      it "to be 0" do
+      it 'to be 0' do
         user = User.create!
         Bio.create!(user_id: user.id)
         user.bio.archive(:force)
@@ -46,8 +46,8 @@ describe ActiveArchive do
       end
     end
 
-    context "license.archive" do
-      it "to be 0" do
+    context 'license.archive' do
+      it 'to be 0' do
         license = License.create!
         license.archive
 
@@ -55,8 +55,8 @@ describe ActiveArchive do
       end
     end
 
-    context "user.license.archive" do
-      it "to be 0" do
+    context 'user.license.archive' do
+      it 'to be 0' do
         user = User.create!
         License.create!(user_id: user.id)
         user.license.archive
@@ -65,8 +65,8 @@ describe ActiveArchive do
       end
     end
 
-    context "user.license.archive(:force)" do
-      it "to be 0" do
+    context 'user.license.archive(:force)' do
+      it 'to be 0' do
         user = User.create!
         License.create!(user_id: user.id)
         user.license.archive(:force)
@@ -75,8 +75,8 @@ describe ActiveArchive do
       end
     end
 
-    context "user.comments.last.archive" do
-      it "to be 2" do
+    context 'user.comments.last.archive' do
+      it 'to be 2' do
         user = User.create!
         2.times { Comment.create!(user_id: user.id) }
         user.comments.last.archive
@@ -84,7 +84,7 @@ describe ActiveArchive do
         expect(Comment.count).to eq(2)
       end
 
-      it "to be true" do
+      it 'to be true' do
         user = User.create!
         2.times { Comment.create!(user_id: user.id) }
         user.comments.last.archive
@@ -94,37 +94,36 @@ describe ActiveArchive do
       end
     end
 
-    context "user.cars.first.archive" do
-      it "to be 1" do
-        user      = User.create!
-        car       = user.cars.create!
-        insurance = Insurance.create!(car_id: car.id)
+    context 'user.cars.first.archive' do
+      it 'to be 1' do
+        user = User.create!
+        user.cars.create!
         user.cars.first.archive
 
         expect(Car.count).to eq(1)
       end
 
-      it "to be 0" do
-        user      = User.create!
-        car       = user.cars.create!
-        insurance = Insurance.create!(car_id: car.id)
+      it 'to be 0' do
+        user = User.create!
+        car = user.cars.create!
+        Insurance.create!(car_id: car.id)
         user.cars.first.archive
 
         expect(Insurance.count).to eq(0)
       end
 
-      it "to be 2" do
+      it 'to be 2' do
         user = User.create!
-        car  = user.cars.create!
+        car = user.cars.create!
         2.times { car.drivers.create! }
         user.cars.first.archive
 
         expect(Driver.count).to eq(2)
       end
 
-      it "to be 0" do
+      it 'to be 0' do
         user = User.create!
-        car  = user.cars.create!
+        car = user.cars.create!
         2.times { car.drivers.create! }
         user.cars.first.archive(:force)
 
@@ -132,11 +131,11 @@ describe ActiveArchive do
       end
     end
 
-    context "user.cars.first.archive" do
-      it "to be 0" do
-        user      = User.create!
-        car       = user.cars.create!
-        insurance = Insurance.create!(car_id: car.id)
+    context 'user.cars.first.archive' do
+      it 'to be 0' do
+        user = User.create!
+        car = user.cars.create!
+        Insurance.create!(car_id: car.id)
         user.cars.first.archive(:force)
 
         expect(Car.count).to eq(0)
@@ -145,16 +144,16 @@ describe ActiveArchive do
     end
   end
 
-  describe "#destroy" do
-    context "user.destroy" do
-      it "to be 1" do
+  describe '#destroy' do
+    context 'user.destroy' do
+      it 'to be 1' do
         user = User.create!
         user.destroy
 
         expect(User.count).to eq(1)
       end
 
-      it "to not be nil" do
+      it 'to not be nil' do
         user = User.create!
         user.destroy
 
@@ -162,8 +161,8 @@ describe ActiveArchive do
       end
     end
 
-    context "user.destroy(:force)" do
-      it "to be 0" do
+    context 'user.destroy(:force)' do
+      it 'to be 0' do
         user = User.create!
         user.destroy(:force)
 
@@ -171,8 +170,8 @@ describe ActiveArchive do
       end
     end
 
-    context "user.bio.destroy" do
-      it "to be true" do
+    context 'user.bio.destroy' do
+      it 'to be true' do
         user = User.create!
         Bio.create!(user_id: user.id)
         user.bio.destroy
@@ -180,7 +179,7 @@ describe ActiveArchive do
         expect(user.bio.archived?).to eq(true)
       end
 
-      it "to be 0" do
+      it 'to be 0' do
         user = User.create!
         Bio.create!(user_id: user.id)
         user.bio.destroy(:force)
@@ -189,8 +188,8 @@ describe ActiveArchive do
       end
     end
 
-    context "license.destroy" do
-      it "to be 0" do
+    context 'license.destroy' do
+      it 'to be 0' do
         license = License.create!
         license.destroy
 
@@ -198,8 +197,8 @@ describe ActiveArchive do
       end
     end
 
-    context "user.license.destroy" do
-      it "to be 0" do
+    context 'user.license.destroy' do
+      it 'to be 0' do
         user = User.create!
         License.create!(user_id: user.id)
         user.license.destroy
@@ -208,8 +207,8 @@ describe ActiveArchive do
       end
     end
 
-    context "user.license.destroy(:force)" do
-      it "to be 0" do
+    context 'user.license.destroy(:force)' do
+      it 'to be 0' do
         user = User.create!
         License.create!(user_id: user.id)
         user.license.destroy(:force)
@@ -218,8 +217,8 @@ describe ActiveArchive do
       end
     end
 
-    context "user.comments.last.destroy" do
-      it "to be 2" do
+    context 'user.comments.last.destroy' do
+      it 'to be 2' do
         user = User.create!
         2.times { Comment.create!(user_id: user.id) }
         user.comments.last.destroy
@@ -227,7 +226,7 @@ describe ActiveArchive do
         expect(Comment.count).to eq(2)
       end
 
-      it "to be true" do
+      it 'to be true' do
         user = User.create!
         2.times { Comment.create!(user_id: user.id) }
         user.comments.last.destroy
@@ -237,37 +236,36 @@ describe ActiveArchive do
       end
     end
 
-    context "user.cars.first.destroy" do
-      it "to be 1" do
-        user      = User.create!
-        car       = user.cars.create!
-        insurance = Insurance.create!(car_id: car.id)
+    context 'user.cars.first.destroy' do
+      it 'to be 1' do
+        user = User.create!
+        user.cars.create!
         user.cars.first.destroy
 
         expect(Car.count).to eq(1)
       end
 
-      it "to be 0" do
-        user      = User.create!
-        car       = user.cars.create!
-        insurance = Insurance.create!(car_id: car.id)
+      it 'to be 0' do
+        user = User.create!
+        car = user.cars.create!
+        Insurance.create!(car_id: car.id)
         user.cars.first.destroy
 
         expect(Insurance.count).to eq(0)
       end
 
-      it "to be 2" do
+      it 'to be 2' do
         user = User.create!
-        car  = user.cars.create!
+        car = user.cars.create!
         2.times { car.drivers.create! }
         user.cars.first.destroy
 
         expect(Driver.count).to eq(2)
       end
 
-      it "to be 0" do
+      it 'to be 0' do
         user = User.create!
-        car  = user.cars.create!
+        car = user.cars.create!
         2.times { car.drivers.create! }
         user.cars.first.destroy(:force)
 
@@ -275,11 +273,11 @@ describe ActiveArchive do
       end
     end
 
-    context "user.cars.first.destroy" do
-      it "to be 0" do
-        user      = User.create!
-        car       = user.cars.create!
-        insurance = Insurance.create!(car_id: car.id)
+    context 'user.cars.first.destroy' do
+      it 'to be 0' do
+        user = User.create!
+        car = user.cars.create!
+        Insurance.create!(car_id: car.id)
         user.cars.first.destroy(:force)
 
         expect(Car.count).to eq(0)
@@ -288,18 +286,18 @@ describe ActiveArchive do
     end
   end
 
-  describe "#destroy_all" do
-    context "user.destroy_all" do
-      it "to be 3" do
+  describe '#destroy_all' do
+    context 'user.destroy_all' do
+      it 'to be 3' do
         3.times { User.create! }
         User.destroy_all
 
         expect(User.count).to eq(3)
       end
 
-      it "to be 2" do
+      it 'to be 2' do
         user = User.create!
-        car  = user.cars.create!
+        car = user.cars.create!
         2.times { car.drivers.create! }
         User.destroy_all
 
@@ -308,18 +306,18 @@ describe ActiveArchive do
     end
   end
 
-  describe "#delete_all" do
-    context "user.delete_all" do
-      it "to be 0" do
+  describe '#delete_all' do
+    context 'user.delete_all' do
+      it 'to be 0' do
         3.times { User.create! }
         User.delete_all
 
         expect(User.count).to eq(0)
       end
 
-      it "to be 0" do
+      it 'to be 0' do
         user = User.create!
-        car  = user.cars.create!
+        car = user.cars.create!
         2.times { car.drivers.create! }
         User.delete_all
 
@@ -328,26 +326,26 @@ describe ActiveArchive do
     end
   end
 
-  describe "#to_archival" do
-    context "user.to_archival" do
-      it "to be 'Unarchived'" do
+  describe '#to_archival' do
+    context 'user.to_archival' do
+      it 'to be "Unarchived"' do
         user = User.create!
 
-        expect(user.to_archival).to eq("Unarchived")
+        expect(user.to_archival).to eq('Unarchived')
       end
 
-      it "to be 'Archived'" do
+      it 'to be "Archived"' do
         user = User.create!
         user.destroy
 
-        expect(user.to_archival).to eq("Archived")
+        expect(user.to_archival).to eq('Archived')
       end
     end
   end
 
-  describe "#unarchive" do
-    context "user.unarchive" do
-      it "to be 1" do
+  describe '#unarchive' do
+    context 'user.unarchive' do
+      it 'to be 1' do
         user = User.create!
         user.archive
         user.unarchive
@@ -355,7 +353,7 @@ describe ActiveArchive do
         expect(User.count).to eq(1)
       end
 
-      it "to be nil" do
+      it 'to be nil' do
         user = User.create!
         user.archive
         user.unarchive
@@ -363,7 +361,7 @@ describe ActiveArchive do
         expect(user.archived_at).to eq(nil)
       end
 
-      it "to be 0" do
+      it 'to be 0' do
         user = User.create!
         user.archive(:force)
 
@@ -371,8 +369,8 @@ describe ActiveArchive do
       end
     end
 
-    context "user.bio.unarchive" do
-      it "to be true" do
+    context 'user.bio.unarchive' do
+      it 'to be true' do
         user = User.create!
         Bio.create!(user_id: user.id)
         user.bio.archive
@@ -381,7 +379,7 @@ describe ActiveArchive do
         expect(user.bio.unarchived?).to eq(true)
       end
 
-      it "to be 0" do
+      it 'to be 0' do
         user = User.create!
         Bio.create!(user_id: user.id)
         user.bio.archive(:force)
@@ -390,8 +388,8 @@ describe ActiveArchive do
       end
     end
 
-    context "license.unarchive" do
-      it "to be 0" do
+    context 'license.unarchive' do
+      it 'to be 0' do
         license = License.create!
         license.archive
         license.unarchive
@@ -400,8 +398,8 @@ describe ActiveArchive do
       end
     end
 
-    context "user.license.unarchive" do
-      it "to be 0" do
+    context 'user.license.unarchive' do
+      it 'to be 0' do
         user = User.create!
         License.create!(user_id: user.id)
         user.license.archive
@@ -411,8 +409,8 @@ describe ActiveArchive do
       end
     end
 
-    context "user.license.unarchive" do
-      it "to be 0" do
+    context 'user.license.unarchive' do
+      it 'to be 0' do
         user = User.create!
         License.create!(user_id: user.id)
         user.license.archive(:force)
@@ -422,8 +420,8 @@ describe ActiveArchive do
       end
     end
 
-    context "user.comments.last.archive" do
-      it "to be 2" do
+    context 'user.comments.last.archive' do
+      it 'to be 2' do
         user = User.create!
         2.times { Comment.create!(user_id: user.id) }
         user.comments.last.archive
@@ -431,7 +429,7 @@ describe ActiveArchive do
         expect(Comment.count).to eq(2)
       end
 
-      it "to be true" do
+      it 'to be true' do
         user = User.create!
         2.times { Comment.create!(user_id: user.id) }
         user.comments.last.archive
@@ -441,30 +439,30 @@ describe ActiveArchive do
       end
     end
 
-    context "user.cars.first.unarchive" do
-      it "to be 1" do
-        user      = User.create!
-        car       = user.cars.create!
-        insurance = Insurance.create!(car_id: car.id)
+    context 'user.cars.first.unarchive' do
+      it 'to be 1' do
+        user = User.create!
+        car = user.cars.create!
+        Insurance.create!(car_id: car.id)
         user.cars.first.archive
         user.cars.first.unarchive
 
         expect(Car.count).to eq(1)
       end
 
-      it "to be 0" do
-        user      = User.create!
-        car       = user.cars.create!
-        insurance = Insurance.create!(car_id: car.id)
+      it 'to be 0' do
+        user = User.create!
+        car = user.cars.create!
+        Insurance.create!(car_id: car.id)
         user.cars.first.archive
         user.cars.first.unarchive
 
         expect(Insurance.count).to eq(0)
       end
 
-      it "to be 2" do
+      it 'to be 2' do
         user = User.create!
-        car  = user.cars.create!
+        car = user.cars.create!
         2.times { car.drivers.create! }
         user.cars.first.archive
         user.cars.first.unarchive
@@ -472,10 +470,9 @@ describe ActiveArchive do
         expect(Driver.count).to eq(2)
       end
 
-      it "to be 0" do
-        user      = User.create!
-        car       = user.cars.create!
-        insurance = Insurance.create!(car_id: car.id)
+      it 'to be raise error' do
+        user = User.create!
+        user.cars.create!
         user.cars.first.archive(:force)
 
         expect { user.cars.first.unarchive }.to raise_error(NoMethodError)

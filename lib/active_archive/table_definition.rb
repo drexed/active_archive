@@ -14,3 +14,7 @@ module TableDefinition
   end
 
 end
+
+# if ActiveArchive.configuration.all_records_archivable == true
+ActiveRecord::ConnectionAdapters::TableDefinition.prepend(TableDefinition)
+# end

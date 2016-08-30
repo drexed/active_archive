@@ -1,10 +1,12 @@
-class ActiveArchive::Configuration
+module ActiveArchive
+  class Configuration
 
-  attr_accessor :all_records_archivable, :dependent_record_window
+    attr_accessor :all_records_archivable, :dependent_record_window
 
-  def initialize
-    @all_records_archivable = false
-    @dependent_record_window = 3.seconds
+    def initialize
+      @all_records_archivable = false
+      @dependent_record_window = 3.seconds
+    end
+
   end
-
 end
