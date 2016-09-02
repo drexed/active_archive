@@ -30,10 +30,6 @@ Or install it yourself as:
 
 ## Configurations
 
-**Options:**
- * all_records_archivable
- * dependent_record_window
-
 `rails generate active_archive:install` will generate the following `active_archive.rb` file:
 
 ```ruby
