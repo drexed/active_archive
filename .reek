@@ -12,6 +12,8 @@ ManualDispatch:
   enabled: false
 NestedIterators:
   max_allowed_nesting: 2
+PrimaDonnaMethod:
+  enabled: false
 TooManyStatements:
   max_statements: 10
   exclude:
