@@ -1,34 +1,25 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en-us">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta charset="UTF-8">
     <title>ActiveArchive by drexed</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/github-light.css">
-    <meta name="viewport" content="width=device-width">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
   <body>
-    <div class="wrapper">
-      <header>
-        <h1>ActiveArchive</h1>
-        <p>Gem for soft-deleting ActiveRecord objects.</p>
+    <section class="page-header">
+      <h1 class="project-name">ActiveArchive</h1>
+      <h2 class="project-tagline">Gem for soft-deleting ActiveRecord objects.</h2>
+      <a href="https://github.com/drexed/active_archive" class="btn">View on GitHub</a>
+      <a href="https://github.com/drexed/active_archive/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/drexed/active_archive/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
 
-        <p class="view"><a href="https://github.com/drexed/active_archive">View the Project on GitHub <small>drexed/active_archive</small></a></p>
-
-
-        <ul>
-          <li><a href="https://github.com/drexed/active_archive/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/drexed/active_archive/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/drexed/active_archive">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h1>
+    <section class="main-content">
+      <h1>
 <a id="activearchive" class="anchor" href="#activearchive" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ActiveArchive</h1>
 
 <p><a href="http://badge.fury.io/rb/active_archive"><img src="https://badge.fury.io/rb/active_archive.svg" alt="Gem Version"></a>
@@ -42,7 +33,7 @@
 
 <p>Add this line to your application's Gemfile:</p>
 
-<div class="highlight highlight-source-ruby"><pre><span class="pl-k">gem</span> <span class="pl-s"><span class="pl-pds">"</span>active_archive<span class="pl-pds">"</span></span></pre></div>
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">gem</span> <span class="pl-s"><span class="pl-pds">'</span>active_archive<span class="pl-pds">'</span></span></pre></div>
 
 <p>And then execute:</p>
 
@@ -66,21 +57,11 @@
 <h2>
 <a id="configurations" class="anchor" href="#configurations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configurations</h2>
 
-<p><strong>Options:</strong></p>
+<p><code>rails generate active_archive:install</code> will generate the following file:
+<code>../config/initalizers/active_archive.rb</code></p>
 
-<ul>
-<li>all_records_archivable</li>
-<li>dependent_record_window</li>
-</ul>
-
-<p><code>rails generate active_archive:install</code> will generate the following <code>active_archive.rb</code> file:</p>
-
-<div class="highlight highlight-source-ruby"><pre><span class="pl-c"># config/initalizers/active_archive.rb</span>
-
-<span class="pl-c1">ActiveArchive</span>.configure <span class="pl-k">do </span>|<span class="pl-smi">config</span>|
-  <span class="pl-c"># option = default</span>
-
-  config.all_records_archivable  <span class="pl-k">=</span> <span class="pl-c1">false</span>
+<div class="highlight highlight-source-ruby"><pre><span class="pl-c1">ActiveArchive</span>::<span class="pl-c1">Settings</span>.configure <span class="pl-k">do </span>|<span class="pl-smi">config</span>|
+  config.all_records_archivable <span class="pl-k">=</span> <span class="pl-c1">false</span>
   config.dependent_record_window <span class="pl-k">=</span> <span class="pl-c1">3</span>.seconds
 <span class="pl-k">end</span></pre></div>
 
@@ -90,29 +71,29 @@
 <p><strong>Options:</strong></p>
 
 <ul>
-<li>archive</li>
-<li>destroy</li>
-<li>destroy_all</li>
-<li>delete</li>
-<li>delete_all</li>
-<li>unarchive</li>
-<li>unarchive_all</li>
+<li><code>archive</code></li>
+<li><code>destroy</code></li>
+<li><code>destroy_all</code></li>
+<li><code>delete</code></li>
+<li><code>delete_all</code></li>
+<li><code>unarchive</code></li>
+<li><code>unarchive_all</code></li>
 </ul>
 
-<div class="highlight highlight-source-ruby"><pre><span class="pl-c1">User</span>.first.archive         <span class="pl-c">#=&gt; archives User record and dependents</span>
-<span class="pl-c1">User</span>.first.destroy         <span class="pl-c">#=&gt; archives User record and dependents</span>
-<span class="pl-c1">User</span>.first.delete          <span class="pl-c">#=&gt; deletes User record and dependents</span>
-<span class="pl-c1">User</span>.first.unarchive       <span class="pl-c">#=&gt; unarchives User record and dependents</span>
+<div class="highlight highlight-source-ruby"><pre><span class="pl-c1">User</span>.first.archive          <span class="pl-c">#=&gt; archives User record and dependents</span>
+<span class="pl-c1">User</span>.first.destroy          <span class="pl-c">#=&gt; archives User record and dependents</span>
+<span class="pl-c1">User</span>.first.delete           <span class="pl-c">#=&gt; deletes User record and dependents</span>
+<span class="pl-c1">User</span>.first.unarchive        <span class="pl-c">#=&gt; unarchives User record and dependents</span>
 
-<span class="pl-c1">User</span>.first.to_archival     <span class="pl-c">#=&gt; returns archival state string</span>
+<span class="pl-c1">User</span>.first.to_archival      <span class="pl-c">#=&gt; returns archival state string</span>
 
-<span class="pl-c1">User</span>.first.archive(<span class="pl-c1">:force</span>) <span class="pl-c">#=&gt; destroys User record and dependents</span>
-<span class="pl-c1">User</span>.first.destroy(<span class="pl-c1">:force</span>) <span class="pl-c">#=&gt; destroys User record and dependents</span>
+<span class="pl-c1">User</span>.first.archive(<span class="pl-c1">:force</span>)  <span class="pl-c">#=&gt; destroys User record and dependents</span>
+<span class="pl-c1">User</span>.first.destroy(<span class="pl-c1">:force</span>)  <span class="pl-c">#=&gt; destroys User record and dependents</span>
 
-<span class="pl-c1">User</span>.archive_all           <span class="pl-c">#=&gt; archives all User records and dependents</span>
-<span class="pl-c1">User</span>.destroy_all           <span class="pl-c">#=&gt; archives all User records and dependents</span>
-<span class="pl-c1">User</span>.delete_all            <span class="pl-c">#=&gt; deletes all User records and dependents</span>
-<span class="pl-c1">User</span>.unarchive_all         <span class="pl-c">#=&gt; unarchives all User record and dependents</span></pre></div>
+<span class="pl-c1">User</span>.archive_all            <span class="pl-c">#=&gt; archives all User records and dependents</span>
+<span class="pl-c1">User</span>.destroy_all            <span class="pl-c">#=&gt; archives all User records and dependents</span>
+<span class="pl-c1">User</span>.delete_all             <span class="pl-c">#=&gt; deletes all User records and dependents</span>
+<span class="pl-c1">User</span>.unarchive_all          <span class="pl-c">#=&gt; unarchives all User record and dependents</span></pre></div>
 
 <h2>
 <a id="scopes" class="anchor" href="#scopes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Scopes</h2>
@@ -120,14 +101,14 @@
 <p><strong>Options:</strong></p>
 
 <ul>
-<li>default</li>
-<li>archived</li>
-<li>unarchived</li>
+<li><code>default</code></li>
+<li><code>archived</code></li>
+<li><code>unarchived</code></li>
 </ul>
 
-<div class="highlight highlight-source-ruby"><pre><span class="pl-c1">User</span>.all            <span class="pl-c">#=&gt; returns all records</span>
-<span class="pl-c1">User</span>.archived.all   <span class="pl-c">#=&gt; returns only archived record</span>
-<span class="pl-c1">User</span>.unarchived.all <span class="pl-c">#=&gt; returns only unarchived record</span></pre></div>
+<div class="highlight highlight-source-ruby"><pre><span class="pl-c1">User</span>.all                    <span class="pl-c">#=&gt; returns all records</span>
+<span class="pl-c1">User</span>.archived.all           <span class="pl-c">#=&gt; returns only archived record</span>
+<span class="pl-c1">User</span>.unarchived.all         <span class="pl-c">#=&gt; returns only unarchived record</span></pre></div>
 
 <h2>
 <a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributing</h2>
@@ -141,13 +122,15 @@
 <li>Push to the branch (<code>git push origin my-new-feature</code>)</li>
 <li>Create new Pull Request</li>
 </ol>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/drexed">drexed</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/drexed/active_archive">ActiveArchive</a> is maintained by <a href="https://github.com/drexed">drexed</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
       </footer>
-    </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
+
+    </section>
+
+  
   </body>
 </html>
