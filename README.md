@@ -30,8 +30,8 @@ Or install it yourself as:
 
 ## Configurations
 
-`rails generate active_archive:install` will generate the following `active_archive.rb` file
-if `../config/initalizers/active_archive.rb`:
+`rails generate active_archive:install` will generate the following file:
+`../config/initalizers/active_archive.rb`
 
 ```ruby
 ActiveArchive::Settings.configure do |config|
