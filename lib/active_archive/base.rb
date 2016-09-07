@@ -35,7 +35,9 @@ module ActiveArchive
 
     def unarchive(opts = nil)
       with_transaction_returning_status do
-        (should_unarchive_parent_first?(opts) ? unarchival.reverse : unarchival).each { |record| record.call(opts) }
+        records = should_unarchive_parent_first?(opts) ? unarchival.reverse : unarchival
+        records.each { |record| record.call(opts) }
+
         self
       end
     end
@@ -69,6 +71,7 @@ module ActiveArchive
       self.class.unscoped.find(id)
     end
 
+    # rubocop:disable Metrics/AbcSize
     def retrieve_dependent_records
       dependent_records = {}
 
@@ -85,6 +88,7 @@ module ActiveArchive
 
       dependent_records
     end
+    # rubocop:enable Metrics/AbcSize
 
     def permanently_delete_records(dependent_records)
       dependent_records.each do |klass, ids|
@@ -131,9 +135,9 @@ module ActiveArchive
 
     def unarchive_destroyed_dependent_records(force = nil)
       self.class.reflections
-          .select { |_, reflection| 'destroy' == reflection.options[:dependent].to_s && reflection.klass.archivable? }
-          .each do |name, reflection|
-            dependent_records_for_unarchival(name, reflection).each { |record| record.unarchive(force) }
+          .select { |_, ref| 'destroy' == ref.options[:dependent].to_s && ref.klass.archivable? }
+          .each do |name, ref|
+            dependent_records_for_unarchival(name, ref).each { |record| record.unarchive(force) }
           end
     end
 
@@ -155,12 +159,10 @@ module ActiveArchive
       quoted_table_name = reflection.quoted_table_name
       window = ActiveArchive::Settings.config.dependent_record_window
 
+      query = "#{quoted_table_name}.archived_at > ? AND #{quoted_table_name}.archived_at < ?"
+
       send(name).unscope(where: :archived_at)
-                .where([
-                         "#{quoted_table_name}.archived_at > ? AND #{quoted_table_name}.archived_at < ?",
-                         archived_at - window,
-                         archived_at + window
-                       ])
+                .where([query, archived_at - window, archived_at + window])
     end
 
     def should_force_destroy?(force)

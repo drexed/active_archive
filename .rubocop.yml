@@ -2,11 +2,11 @@ AllCops:
   DisplayCopNames: true
   DisplayStyleGuide: true
   TargetRubyVersion: 2.3
+  Exclude:
+    - 'spec/**/**/*'
 LineLength:
-  Max: 120
-Rails/Delegate:
-  Enabled: false
-Rails/Output:
+  Max: 100
+Metrics/ModuleLength:
   Enabled: false
 Style/Alias:
   EnforcedStyle: prefer_alias_method
@@ -22,11 +22,15 @@ Style/EmptyLinesAroundClassBody:
   Enabled: false
 Style/EmptyLinesAroundModuleBody:
   Enabled: false
+Style/HashSyntax:
+  Enabled: false
 Style/FirstParameterIndentation:
   Enabled: false
 Style/FrozenStringLiteralComment:
   Enabled: false
 Style/MultilineMethodCallIndentation:
   EnforcedStyle: aligned
+Style/NumericLiterals:
+  Enabled: false
 Style/RescueModifier:
   Enabled: false

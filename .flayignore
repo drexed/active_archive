@@ -1,2 +1,0 @@
-./spec/lib/active_archive/*.rb
-./spec/support/db/*.rb

@@ -1,9 +1,12 @@
 ---
 Attribute:
   enabled: false
+BooleanParameter:
+  enabled: false
+ControlParameter:
+  enabled: false
 FeatureEnvy:
-  exclude:
-    - 'ActiveArchive::Base#retrieve_dependent_records'
+  enabled: false
 IrresponsibleModule:
   enabled: false
 NilCheck:

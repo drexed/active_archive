@@ -30,11 +30,10 @@ Or install it yourself as:
 
 ## Configurations
 
-`rails generate active_archive:install` will generate the following `active_archive.rb` file:
+`rails generate active_archive:install` will generate the following `active_archive.rb` file
+if `../config/initalizers/active_archive.rb`:
 
 ```ruby
-# Path: ../config/initalizers/active_archive.rb
-
 ActiveArchive::Settings.configure do |config|
   config.all_records_archivable = false
   config.dependent_record_window = 3.seconds
@@ -44,42 +43,42 @@ end
 ## Methods
 
 **Options:**
- * archive
- * destroy
- * destroy_all
- * delete
- * delete_all
- * unarchive
- * unarchive_all
+ * `archive`
+ * `destroy`
+ * `destroy_all`
+ * `delete`
+ * `delete_all`
+ * `unarchive`
+ * `unarchive_all`
 
 ```ruby
-User.first.archive         #=> archives User record and dependents
-User.first.destroy         #=> archives User record and dependents
-User.first.delete          #=> deletes User record and dependents
-User.first.unarchive       #=> unarchives User record and dependents
+User.first.archive          #=> archives User record and dependents
+User.first.destroy          #=> archives User record and dependents
+User.first.delete           #=> deletes User record and dependents
+User.first.unarchive        #=> unarchives User record and dependents
 
-User.first.to_archival     #=> returns archival state string
+User.first.to_archival      #=> returns archival state string
 
-User.first.archive(:force) #=> destroys User record and dependents
-User.first.destroy(:force) #=> destroys User record and dependents
+User.first.archive(:force)  #=> destroys User record and dependents
+User.first.destroy(:force)  #=> destroys User record and dependents
 
-User.archive_all           #=> archives all User records and dependents
-User.destroy_all           #=> archives all User records and dependents
-User.delete_all            #=> deletes all User records and dependents
-User.unarchive_all         #=> unarchives all User record and dependents
+User.archive_all            #=> archives all User records and dependents
+User.destroy_all            #=> archives all User records and dependents
+User.delete_all             #=> deletes all User records and dependents
+User.unarchive_all          #=> unarchives all User record and dependents
 ```
 
 ## Scopes
 
 **Options:**
- * default
- * archived
- * unarchived
+ * `default`
+ * `archived`
+ * `unarchived`
 
 ```ruby
-User.all            #=> returns all records
-User.archived.all   #=> returns only archived record
-User.unarchived.all #=> returns only unarchived record
+User.all                    #=> returns all records
+User.archived.all           #=> returns only archived record
+User.unarchived.all         #=> returns only unarchived record
 ```
 
 ## Contributing
