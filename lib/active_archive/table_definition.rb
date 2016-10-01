@@ -8,10 +8,9 @@ module ActiveArchive
       column(:created_at, :datetime, options)
       column(:updated_at, :datetime, options)
 
-      if ActiveArchive::Settings.config.all_records_archivable == true
-        options[:null] = true
-        column(:archived_at, :datetime, options)
-      end
+      return unless ActiveArchive::Settings.config.all_records_archivable == true
+      options[:null] = true
+      column(:archived_at, :datetime, options)
     end
 
   end

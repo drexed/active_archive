@@ -36,7 +36,7 @@ module ActiveArchive
     def unarchive(opts = nil)
       with_transaction_returning_status do
         records = should_unarchive_parent_first?(opts) ? unarchival.reverse : unarchival
-        records.each { |record| record.call(opts) }
+        records.each { |rec| rec.call(opts) }
 
         self
       end
@@ -75,8 +75,8 @@ module ActiveArchive
     def retrieve_dependent_records
       dependent_records = {}
 
-      self.class.reflections.each do |key, reflection|
-        next unless reflection.options[:dependent] == :destroy
+      self.class.reflections.each do |key, ref|
+        next unless ref.options[:dependent] == :destroy
 
         records = send(key)
         next unless records
@@ -120,24 +120,27 @@ module ActiveArchive
       ]
     end
 
+    # rubocop:disable Metrics/LineLength
     def dependent_records_for_unarchival(name, reflection)
       record = send(name)
 
       case reflection.macro.to_s.gsub('has_', '').to_sym
       when :many
-        records = archived_at ? set_record_window(record, name, reflection) : record
+        records = archived_at ? set_record_window(record, name, reflection) : record.unscope(where: :archived_at)
       when :one, :belongs_to
         self.class.unscoped { records = [] << record }
       end
 
       [records].flatten.compact
     end
+    # rubocop:enable Metrics/LineLength
 
     def unarchive_destroyed_dependent_records(force = nil)
       self.class.reflections
           .select { |_, ref| 'destroy' == ref.options[:dependent].to_s && ref.klass.archivable? }
           .each do |name, ref|
-            dependent_records_for_unarchival(name, ref).each { |record| record.unarchive(force) }
+            dependent_records_for_unarchival(name, ref).each { |rec| rec.try(:unarchive, force) }
+            reload
           end
     end
 
