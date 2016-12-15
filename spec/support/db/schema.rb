@@ -8,8 +8,7 @@ ActiveRecord::Schema.define(version: 1) do
   create_table :licenses, force: true do |t|
     t.references :user
     t.string :number
-    t.datetime :created_at
-    t.datetime :updated_at
+    t.timestamps skip: true
   end
 
   create_table :bios, force: true do |t|

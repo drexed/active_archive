@@ -110,7 +110,7 @@ module ActiveArchive
 
     def unarchival
       [
-        -> (validate) { unarchive_destroyed_dependent_records(validate) },
+        ->(validate) { unarchive_destroyed_dependent_records(validate) },
         lambda do |validate|
           run_callbacks(:unarchive) do
             set_archived_at(nil, validate)
