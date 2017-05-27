@@ -137,7 +137,7 @@ module ActiveArchive
 
     def unarchive_destroyed_dependent_records(force = nil)
       self.class.reflections
-          .select { |_, ref| 'destroy' == ref.options[:dependent].to_s && ref.klass.archivable? }
+          .select { |_, ref| ref.options[:dependent].to_s == 'destroy' && ref.klass.archivable? }
           .each do |name, ref|
             dependent_records_for_unarchival(name, ref).each { |rec| rec.try(:unarchive, force) }
             reload
@@ -169,15 +169,15 @@ module ActiveArchive
     end
 
     def should_force_destroy?(force)
-      force.is_a?(Hash) ? force[:force] : (:force == force)
+      force.is_a?(Hash) ? force[:force] : (force == :force)
     end
 
     def should_ignore_validations?(force)
-      force.is_a?(Hash) && (false == force[:validate])
+      force.is_a?(Hash) && (force[:validate] == false)
     end
 
     def should_unarchive_parent_first?(order)
-      order.is_a?(Hash) && (true == order[:reverse])
+      order.is_a?(Hash) && (order[:reverse] == true)
     end
 
   end

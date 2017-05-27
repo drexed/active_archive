@@ -1,6 +1,6 @@
 require 'rails'
 
-%w(version settings table_definition methods scopes base).each do |file_name|
+%w[version settings table_definition methods scopes base].each do |file_name|
   require "active_archive/#{file_name}"
 end
 

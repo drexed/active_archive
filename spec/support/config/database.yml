@@ -1,4 +1,7 @@
 test:
-  :adapter: sqlite3
-  :database: ':memory:'
-  :min_messages: ERROR
+  adapter: sqlite3
+  database: ':memory:'
+  encoding: utf8
+  pool: 5
+  timeout: 5000
+  verbosity: quiet
