@@ -60,11 +60,33 @@ module ActiveArchive
 
     def destroy_with_active_archive(force = nil)
       run_callbacks(:destroy) do
-        archived? || new_record? ? save : set_archived_at(Time.now, force)
+        if archived? || new_record?
+          save
+        else
+          set_archived_at(Time.now, force)
+          each_counter_cache do |assoc_class, counter_cache_column, assoc_id|
+            assoc_class.decrement_counter(counter_cache_column, assoc_id)
+          end
+        end
         return(true)
       end
 
       archived? ? self : false
+    end
+
+    def each_counter_cache
+      _reflections.each do |name, reflection|
+        next unless respond_to?(name.to_sym)
+
+        association = send(name.to_sym)
+
+        next if association.nil?
+        next unless reflection.belongs_to? && reflection.counter_cache_column
+
+        associated_class = association.class
+
+        yield(associated_class, reflection.counter_cache_column, send(reflection.foreign_key))
+      end
     end
 
     def retrieve_archived_record
@@ -114,6 +136,9 @@ module ActiveArchive
         lambda do |validate|
           run_callbacks(:unarchive) do
             set_archived_at(nil, validate)
+            each_counter_cache do |assoc_class, counter_cache_column, assoc_id|
+              assoc_class.increment_counter(counter_cache_column, assoc_id)
+            end
             return(true)
           end
         end
@@ -151,7 +176,11 @@ module ActiveArchive
 
       begin
         should_ignore_validations?(force) ? record.save(validate: false) : record.save!
+
+        @previous_mutation_tracker = record.send(:previous_mutation_tracker)
+        @changed_attributes = HashWithIndifferentAccess.new
         @attributes = record.instance_variable_get('@attributes')
+        @mutation_tracker = nil
       rescue => error
         record.destroy
         raise(error)
