@@ -10,6 +10,11 @@ spec_tmp_path = Pathname.new(File.expand_path('../spec/lib/generators/tmp', File
 I18n.load_path << File.expand_path('../../config/locales/en.yml', __FILE__)
 I18n.enforce_available_locales = false
 
+ActiveArchive.configure do |config|
+  config.all_records_archivable = true
+  config.dependent_record_window = 3.seconds
+end
+
 ActiveRecord::Base.configurations = YAML.load_file(spec_support_path.join('config/database.yml'))
 ActiveRecord::Base.establish_connection(:test)
 

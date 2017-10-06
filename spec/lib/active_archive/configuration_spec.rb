@@ -12,15 +12,15 @@ describe ActiveArchive::Configuration do
 
   describe '.configure' do
     it 'to be "91 test" for all_records_archivable' do
-      ActiveArchive.configure.all_records_archivable = '91 test'
+      ActiveArchive.configuration.all_records_archivable = '91 test'
 
-      expect(ActiveArchive.config.all_records_archivable).to eq('91 test')
+      expect(ActiveArchive.configuration.all_records_archivable).to eq('91 test')
     end
 
     it 'to be "19 test" dependent_record_window' do
-      ActiveArchive.configure.dependent_record_window = '19 test'
+      ActiveArchive.configuration.dependent_record_window = '19 test'
 
-      expect(ActiveArchive.config.dependent_record_window).to eq('19 test')
+      expect(ActiveArchive.configuration.dependent_record_window).to eq('19 test')
     end
   end
 

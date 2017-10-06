@@ -191,7 +191,7 @@ module ActiveArchive
 
     def set_record_window(_, name, reflection)
       quoted_table_name = reflection.quoted_table_name
-      window = ActiveArchive.config.dependent_record_window
+      window = ActiveArchive.configuration.dependent_record_window
 
       query = "#{quoted_table_name}.archived_at > ? AND #{quoted_table_name}.archived_at < ?"
 
