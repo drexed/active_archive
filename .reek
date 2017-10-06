@@ -1,15 +1,11 @@
 ---
 Attribute:
   enabled: false
-BooleanParameter:
-  enabled: false
-ControlParameter:
+DuplicateMethodCall:
   enabled: false
 FeatureEnvy:
   enabled: false
 IrresponsibleModule:
-  enabled: false
-LongParameterList:
   enabled: false
 ManualDispatch:
   enabled: false
@@ -17,13 +13,10 @@ NestedIterators:
   max_allowed_nesting: 2
 NilCheck:
   enabled: false
-PrimaDonnaMethod:
-  enabled: false
-RepeatedConditional:
-  enabled: false
 TooManyStatements:
   max_statements: 10
   exclude:
     - 'ActiveArchive::Base#retrieve_dependent_records'
+    - 'ActiveArchive::Base#set_archived_at'
 UtilityFunction:
   enabled: false
