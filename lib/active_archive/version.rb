@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ActiveArchive
-  VERSION = '4.0.7'.freeze
+  VERSION ||= '5.0.0'
 end

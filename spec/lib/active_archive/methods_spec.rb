@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe ActiveArchive::Methods do
 
-  describe '#archivable?' do
+  describe '.archivable?' do
     # TODO
   end
 
-  describe '#archive_all' do
+  describe '.archive_all' do
     it 'to be 0' do
       3.times { Insurance.create! }
       Insurance.archive_all
@@ -31,7 +33,7 @@ describe ActiveArchive::Methods do
     end
   end
 
-  describe '#unarchive_all' do
+  describe '.unarchive_all' do
     it 'to be 0' do
       3.times { Insurance.create! }
       Insurance.archive_all

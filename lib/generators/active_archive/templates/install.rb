@@ -1,4 +1,6 @@
-ActiveArchive::Settings.configure do |config|
+# frozen_string_literal: true
+
+ActiveArchive.configure do |config|
   config.all_records_archivable = false
   config.dependent_record_window = 3.seconds
 end

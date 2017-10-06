@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe ActiveArchive do
 
-  describe '#archive' do
+  describe '.archive' do
     context 'user.archive' do
       it 'to be 1' do
         user = User.create!
@@ -144,7 +146,7 @@ describe ActiveArchive do
     end
   end
 
-  describe '#destroy' do
+  describe '.destroy' do
     context 'user.destroy' do
       it 'to be 1' do
         user = User.create!
@@ -286,7 +288,7 @@ describe ActiveArchive do
     end
   end
 
-  describe '#destroy_all' do
+  describe '.destroy_all' do
     context 'user.destroy_all' do
       it 'to be 3' do
         3.times { User.create! }
@@ -306,7 +308,7 @@ describe ActiveArchive do
     end
   end
 
-  describe '#delete_all' do
+  describe '.delete_all' do
     context 'user.delete_all' do
       it 'to be 0' do
         3.times { User.create! }
@@ -326,7 +328,7 @@ describe ActiveArchive do
     end
   end
 
-  describe '#to_archival' do
+  describe '.to_archival' do
     context 'user.to_archival' do
       it 'to be "Unarchived"' do
         user = User.create!
@@ -343,7 +345,7 @@ describe ActiveArchive do
     end
   end
 
-  describe '#unarchive' do
+  describe '.unarchive' do
     context 'user.unarchive' do
       it 'to be 1' do
         user = User.create!

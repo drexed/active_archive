@@ -2,7 +2,6 @@
 
 [![Gem Version](https://badge.fury.io/rb/active_archive.svg)](http://badge.fury.io/rb/active_archive)
 [![Build Status](https://travis-ci.org/drexed/active_archive.svg?branch=master)](https://travis-ci.org/drexed/active_archive)
-[![Coverage Status](https://coveralls.io/repos/github/drexed/active_archive/badge.svg?branch=master)](https://coveralls.io/github/drexed/active_archive?branch=master)
 
 ActiveArchive is a library for preventing database records from being destroyed.
 
@@ -34,7 +33,7 @@ Or install it yourself as:
 `../config/initalizers/active_archive.rb`
 
 ```ruby
-ActiveArchive::Settings.configure do |config|
+ActiveArchive.configure do |config|
   config.all_records_archivable = false
   config.dependent_record_window = 3.seconds
 end

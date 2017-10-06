@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ActiveArchive
   module TableDefinition
 
@@ -7,7 +9,7 @@ module ActiveArchive
       column(:created_at, :datetime, options)
       column(:updated_at, :datetime, options)
 
-      return unless ActiveArchive::Settings.config.all_records_archivable == true
+      return unless ActiveArchive.config.all_records_archivable == true
       return if options[:skip]
 
       options[:null] = true
