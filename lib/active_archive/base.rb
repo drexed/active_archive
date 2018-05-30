@@ -179,10 +179,7 @@ module ActiveArchive
       begin
         should_ignore_validations?(force) ? record.save(validate: false) : record.save!
 
-        @previous_mutation_tracker = record.send(:previous_mutation_tracker)
-        @changed_attributes = HashWithIndifferentAccess.new
         @attributes = record.instance_variable_get('@attributes')
-        @mutation_tracker = nil
       rescue => error
         record.destroy
         raise(error)
@@ -190,10 +187,10 @@ module ActiveArchive
     end
 
     def set_record_window(_, name, reflection)
-      quoted_table_name = reflection.quoted_table_name
+      qtn = reflection.table_name
       window = ActiveArchive.configuration.dependent_record_window
 
-      query = "#{quoted_table_name}.archived_at > ? AND #{quoted_table_name}.archived_at < ?"
+      query = "#{qtn}.archived_at > ? AND #{qtn}.archived_at < ?"
 
       send(name).unscope(where: :archived_at)
                 .where([query, archived_at - window, archived_at + window])
