@@ -179,7 +179,10 @@ module ActiveArchive
       begin
         should_ignore_validations?(force) ? record.save(validate: false) : record.save!
 
+        @previous_mutation_tracker = record.try(:previous_mutation_tracker)
+        @changed_attributes = HashWithIndifferentAccess.new
         @attributes = record.instance_variable_get('@attributes')
+        @mutation_tracker = nil
       rescue => error
         record.destroy
         raise(error)
