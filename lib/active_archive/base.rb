@@ -182,18 +182,16 @@ module ActiveArchive
         if ::ActiveRecord::VERSION::MAJOR >= 5 && ::ActiveRecord::VERSION::MINOR >= 2
           @mutations_before_last_save = record.send(:mutations_from_database)
           @attributes_changed_by_setter = HashWithIndifferentAccess.new
-          @attributes = record.instance_variable_get('@attributes') || record.changes
-          @mutations_from_database = nil
         elsif ::ActiveRecord::VERSION::MAJOR >= 5
           @previous_mutation_tracker = record.send(:previous_mutation_tracker)
-          @changed_attributes = HashWithIndifferentAccess.new
-          @attributes = record.instance_variable_get('@attributes') || record.changes
-          @mutation_tracker = nil
         elsif ::ActiveRecord::VERSION::MAJOR >= 4
-          @previously_changed = record.instance_variable_get('@previously_changed') || record.changes
-          @attributes = record.instance_variable_get('@attributes')
-          @mutation_tracker = nil
+          @previously_changed = record.instance_variable_get('@previously_changed')
         end
+
+        @changed_attributes = HashWithIndifferentAccess.new
+        @attributes = record.instance_variable_get('@attributes')
+        @mutation_tracker = nil
+        @mutations_from_database = nil
       rescue => error
         record.destroy
         raise(error)
