@@ -179,10 +179,21 @@ module ActiveArchive
       begin
         should_ignore_validations?(force) ? record.save(validate: false) : record.save!
 
-        @previously_changed = record.instance_variable_get('@previously_changed')
-        @changed_attributes = HashWithIndifferentAccess.new
-        @attributes = record.instance_variable_get('@attributes')
-        @mutation_tracker = nil
+        if ::ActiveRecord::VERSION::MAJOR >= 5 && ::ActiveRecord::VERSION::MINOR >= 2
+          @mutations_before_last_save = record.send(:mutations_before_last_save)
+          @attributes_changed_by_setter = HashWithIndifferentAccess.new
+          @attributes = record.instance_variable_get('@attributes') || record.changes
+          @mutations_from_database = nil
+        elsif ::ActiveRecord::VERSION::MAJOR >= 5
+          @previous_mutation_tracker = record.send(:previous_mutation_tracker)
+          @changed_attributes = HashWithIndifferentAccess.new
+          @attributes = record.instance_variable_get('@attributes') || record.changes
+          @mutation_tracker = nil
+        elsif ::ActiveRecord::VERSION::MAJOR >= 4
+          @previously_changed = record.instance_variable_get('@previously_changed') || record.changes
+          @attributes = record.instance_variable_get('@attributes')
+          @mutation_tracker = nil
+        end
       rescue => error
         record.destroy
         raise(error)
