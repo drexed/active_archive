@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class License < ActiveRecord::Base
+class License < ApplicationRecord
 
   belongs_to :user
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Car < ActiveRecord::Base
+class Car < ApplicationRecord
 
   belongs_to :user
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class User < ActiveRecord::Base
+class User < ApplicationRecord
 
   has_one :license
   has_one :bio, dependent: :destroy

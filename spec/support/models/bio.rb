@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Bio < ActiveRecord::Base
+class Bio < ApplicationRecord
 
   belongs_to :user
 

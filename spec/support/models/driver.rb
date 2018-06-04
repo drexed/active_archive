@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Driver < ActiveRecord::Base
+class Driver < ApplicationRecord
 
   belongs_to :car
 

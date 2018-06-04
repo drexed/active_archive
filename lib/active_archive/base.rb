@@ -180,7 +180,7 @@ module ActiveArchive
         should_ignore_validations?(force) ? record.save(validate: false) : record.save!
 
         if ::ActiveRecord::VERSION::MAJOR >= 5 && ::ActiveRecord::VERSION::MINOR >= 2
-          @mutations_before_last_save = record.send(:mutations_before_last_save)
+          @mutations_before_last_save = record.send(:mutations_from_database)
           @attributes_changed_by_setter = HashWithIndifferentAccess.new
           @attributes = record.instance_variable_get('@attributes') || record.changes
           @mutations_from_database = nil
