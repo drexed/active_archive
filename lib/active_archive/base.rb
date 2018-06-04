@@ -178,16 +178,7 @@ module ActiveArchive
 
       begin
         should_ignore_validations?(force) ? record.save(validate: false) : record.save!
-
-        if ::ActiveRecord::VERSION::MAJOR >= 5
-          @previous_mutation_tracker = record.send(:previous_mutation_tracker)
-        elsif ::ActiveRecord::VERSION::MAJOR >= 4
-          @previously_changed = record.instance_variable_get('@previously_changed')
-        end
-
-        @changed_attributes = HashWithIndifferentAccess.new
         @attributes = record.instance_variable_get('@attributes')
-        @mutation_tracker = nil
       rescue => error
         record.destroy
         raise(error)
