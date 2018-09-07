@@ -43,12 +43,17 @@ end
 
 **Options:**
  * `archive`
+ * `archive_all`
+ * `archive_all!`
  * `destroy`
  * `destroy_all`
+ * `destroy_all!`
  * `delete`
  * `delete_all`
  * `unarchive`
  * `unarchive_all`
+ * `undestroy`
+ * `undestroy_all`
 
 ```ruby
 User.first.archive          #=> archives User record and dependents
