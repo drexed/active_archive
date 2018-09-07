@@ -8,23 +8,15 @@ describe ActiveArchive::Scopes do
     6.times { User.create!.destroy }
   end
 
-  context '#archived' do
-    it 'to be 6' do
-      expect(User.archived.count).to eq(User.all.select(&:archived?).size)
-    end
-
-    it 'to be archived' do
-      User.archived.each { |m| expect(m).to be_archived }
+  describe '.archived' do
+    it 'to be 6 archived users' do
+      expect(User.archived.count).to eq(6)
     end
   end
 
-  context '#unarchived' do
-    it 'to be 3' do
-      expect(User.unarchived.count).to eq(User.all.reject(&:archived?).size)
-    end
-
-    it 'to not be archived' do
-      User.unarchived.each { |m| expect(m).not_to be_archived }
+  describe '.unarchived' do
+    it 'to be 3 unarchived users' do
+      expect(User.unarchived.count).to eq(3)
     end
   end
 end

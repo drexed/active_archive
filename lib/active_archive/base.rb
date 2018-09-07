@@ -10,29 +10,20 @@ module ActiveArchive
       base.instance_eval { define_model_callbacks(:unarchive) }
     end
 
-    def archived?
-      archivable? ? !archived_at.nil? : destroyed?
-    end
-
     def archivable?
       respond_to?(:archived_at)
     end
 
-    def destroy(force = nil)
-      with_transaction_returning_status do
-        if unarchivable? || should_force_destroy?(force)
-          permanently_delete_records_after { super() }
-        else
-          destroy_with_active_archive(force)
-        end
-      end
+    def archived?
+      archivable? ? !archived_at.nil? : destroyed?
     end
 
-    alias_method(:archive, :destroy)
-    alias_method(:archive!, :destroy)
+    def unarchived?
+      !archived?
+    end
 
-    def to_archival
-      I18n.t("active_archive.archival.#{archived? ? :archived : :unarchived}")
+    def unarchivable?
+      !archivable?
     end
 
     def unarchive(opts = nil)
@@ -44,36 +35,65 @@ module ActiveArchive
       end
     end
 
-    alias_method(:unarchive!, :unarchive)
+    alias_method :undestroy, :unarchive
 
-    def unarchived?
-      !archived?
+    def destroy(force = nil)
+      with_transaction_returning_status do
+        if unarchivable? || should_force_destroy?(force)
+          permanently_delete_records_after { super() }
+        else
+          destroy_with_active_archive(force)
+        end
+      end
     end
 
-    def unarchivable?
-      !archivable?
+    alias_method :archive, :destroy
+
+    def to_archival
+      I18n.t("active_archive.archival.#{archived? ? :archived : :unarchived}")
     end
 
     private
 
-    def attempt_notifying_observers(callback)
-      notify_observers(callback) if respond_to?(:notify_observers)
-    end
+    def unarchival
+      [
+        lambda do |validate|
+          unarchive_destroyed_dependent_records(validate)
+        end,
+        lambda do |validate|
+          run_callbacks(:unarchive) do
+            set_archived_at(nil, validate)
 
-    def destroy_with_active_archive(force = nil)
-      run_callbacks(:destroy) do
-        if archived? || new_record?
-          save
-        else
-          set_archived_at(Time.now, force)
-          each_counter_cache do |assoc_class, counter_cache_column, assoc_id|
-            assoc_class.decrement_counter(counter_cache_column, assoc_id)
+            each_counter_cache do |assoc_class, counter_cache_column, assoc_id|
+              assoc_class.increment_counter(counter_cache_column, assoc_id)
+            end
+
+            true
           end
         end
-        return(true)
-      end
+      ]
+    end
 
-      archived? ? self : false
+    def get_archived_record
+      self.class.unscoped.find(id)
+    end
+
+    def set_archived_at(value, force = nil)
+      return self unless archivable?
+      record = get_archived_record
+      record.archived_at = value
+
+      begin
+        should_ignore_validations?(force) ? record.save(validate: false) : record.save!
+
+        # TODO:
+        # https://github.com/remind101/permanent_records/commit/769f4d71c3b97ff3eaf966ec951fa7b80cf05ee7
+
+        @attributes = record.instance_variable_get('@attributes')
+      rescue => error
+        record.destroy
+        raise error
+      end
     end
 
     def each_counter_cache
@@ -85,34 +105,82 @@ module ActiveArchive
         next if association.nil?
         next unless reflection.belongs_to? && reflection.counter_cache_column
 
-        associated_class = association.class
-
-        yield(associated_class, reflection.counter_cache_column, send(reflection.foreign_key))
+        yield(association.class, reflection.counter_cache_column, send(reflection.foreign_key))
       end
     end
 
-    def retrieve_archived_record
-      self.class.unscoped.find(id)
-    end
+    def destroy_with_active_archive(force = nil)
+      run_callbacks(:destroy) do
+        if archived? || new_record?
+          save
+        else
+          set_archived_at(Time.now, force)
 
-    # rubocop:disable Metrics/AbcSize
-    def retrieve_dependent_records
-      dependent_records = {}
+          each_counter_cache do |assoc_class, counter_cache_column, assoc_id|
+            assoc_class.decrement_counter(counter_cache_column, assoc_id)
+          end
+        end
 
-      self.class.reflections.each do |key, ref|
-        next unless ref.options[:dependent] == :destroy
-
-        records = send(key)
-        next unless records
-        records.respond_to?(:empty?) ? (next if records.empty?) : (records = [] << records)
-
-        dependent_record = records.first
-        dependent_record.nil? ? next : dependent_records[dependent_record.class] = records.map(&:id)
+        true
       end
 
-      dependent_records
+      archived? ? self : false
     end
-    # rubocop:enable Metrics/AbcSize
+
+    def add_record_window(_request, name, reflection)
+      qtn = reflection.table_name
+      window = ActiveArchive.configuration.dependent_record_window
+      query = "#{qtn}.archived_at > ? AND #{qtn}.archived_at < ?"
+
+      send(name).unscope(where: :archived_at)
+                .where(query, archived_at - window, archived_at + window)
+    end
+
+    def unarchive_destroyed_dependent_records(force = nil)
+      destroyed_dependent_relations.each do |relation|
+        relation.to_a.each do |destroyed_dependent_record|
+          destroyed_dependent_record.try(:unarchive, force)
+        end
+      end
+
+      reload
+    end
+
+    def destroyed_dependent_relations
+      dependent_permanent_reflections(self.class).map do |name, relation|
+        case relation.macro.to_s.gsub('has_', '').to_sym
+        when :many
+          if archived_at
+            add_record_window(send(name), name, relation)
+          else
+            send(name).unscope(where: :archived_at)
+          end
+        when :one, :belongs_to
+          self.class.unscoped { Array(send(name)) }
+        end
+      end
+    end
+
+    def attempt_notifying_observers(callback)
+      notify_observers(callback)
+    rescue NoMethodError
+      # do nothing
+    end
+
+    def dependent_record_ids
+      dependent_reflections(self.class).reduce({}) do |records, (key, _)|
+        found = Array(send(key)).compact
+        next records if found.empty?
+        records.update(found.first.class => found.map(&:id))
+      end
+    end
+
+    def permanently_delete_records_after(&_block)
+      dependent_records = dependent_record_ids
+      result = yield(_block)
+      permanently_delete_records(dependent_records) if result
+      result
+    end
 
     def permanently_delete_records(dependent_records)
       dependent_records.each do |klass, ids|
@@ -125,87 +193,16 @@ module ActiveArchive
       end
     end
 
-    def permanently_delete_records_after(&block)
-      dependent_records = retrieve_dependent_records
-      dependent_results = yield(block)
-      permanently_delete_records(dependent_records) if dependent_results
-      dependent_results
-    end
-
-    def unarchival
-      [
-        ->(validate) { unarchive_destroyed_dependent_records(validate) },
-        lambda do |validate|
-          run_callbacks(:unarchive) do
-            set_archived_at(nil, validate)
-            each_counter_cache do |assoc_class, counter_cache_column, assoc_id|
-              assoc_class.increment_counter(counter_cache_column, assoc_id)
-            end
-            return(true)
-          end
-        end
-      ]
-    end
-
-    # rubocop:disable Metrics/LineLength
-    def dependent_records_for_unarchival(name, reflection)
-      record = send(name)
-
-      case reflection.macro.to_s.gsub('has_', '').to_sym
-      when :many
-        records = archived_at ? set_record_window(record, name, reflection) : record.unscope(where: :archived_at)
-      when :one, :belongs_to
-        self.class.unscoped { records = [] << record }
-      end
-
-      [records].flatten.compact
-    end
-    # rubocop:enable Metrics/LineLength
-
-    def unarchive_destroyed_dependent_records(force = nil)
-      self.class.reflections
-          .select { |_, ref| ref.options[:dependent].to_s == 'destroy' && ref.klass.archivable? }
-          .each do |name, ref|
-            dependent_records_for_unarchival(name, ref).each { |rec| rec.try(:unarchive, force) }
-            reload
-          end
-    end
-
-    def set_archived_at(value, force = nil)
-      return self unless archivable?
-      record = retrieve_archived_record
-      record.archived_at = value
-
-      begin
-        should_ignore_validations?(force) ? record.save(validate: false) : record.save!
-
-        if ::ActiveRecord::VERSION::MAJOR >= 5 && ::ActiveRecord::VERSION::MINOR >= 2
-          @mutations_before_last_save = record.send(:mutations_from_database)
-          @attributes_changed_by_setter = HashWithIndifferentAccess.new
-        elsif ::ActiveRecord::VERSION::MAJOR >= 5
-          @previous_mutation_tracker = record.send(:previous_mutation_tracker)
-        elsif ::ActiveRecord::VERSION::MAJOR >= 4
-          @previously_changed = record.instance_variable_get('@previously_changed')
-        end
-
-        @changed_attributes = HashWithIndifferentAccess.new
-        @attributes = record.instance_variable_get('@attributes')
-        @mutation_tracker = nil
-        @mutations_from_database = nil
-      rescue => error
-        record.destroy
-        raise(error)
+    def dependent_reflections(klass)
+      klass.reflections.select do |_, reflection|
+        reflection.options[:dependent] == :destroy
       end
     end
 
-    def set_record_window(_, name, reflection)
-      qtn = reflection.table_name
-      window = ActiveArchive.configuration.dependent_record_window
-
-      query = "#{qtn}.archived_at > ? AND #{qtn}.archived_at < ?"
-
-      send(name).unscope(where: :archived_at)
-                .where([query, archived_at - window, archived_at + window])
+    def dependent_permanent_reflections(klass)
+      dependent_reflections(klass).select do |_name, reflection|
+        reflection.klass.archivable?
+      end
     end
 
     def should_force_destroy?(force)

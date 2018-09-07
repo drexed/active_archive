@@ -4,480 +4,332 @@ require 'spec_helper'
 
 describe ActiveArchive do
 
-  describe '.archive' do
-    context 'user.archive' do
-      it 'to be 1' do
-        user = User.create!
-        user.archive
+  %i[archive destroy].each do |method|
+    describe ".#{method}" do
+      context 'all records on table with archived_at' do
+        it 'to be Time object when soft-deleted' do
+          user = User.create!
+          user.send(method)
 
-        expect(User.count).to eq(1)
+          expect(user.archived_at.is_a?(Time)).to eq(true)
+        end
+
+        it 'to be 1 when soft-deleted' do
+          user = User.create!
+          user.send(method)
+
+          expect(User.count).to eq(1)
+        end
+
+        it 'to be 0 when perma-deleted' do
+          user = User.create!
+          user.send(method, :force)
+
+          expect(User.count).to eq(0)
+        end
       end
 
-      it 'to not be nil' do
-        user = User.create!
-        user.archive
+      context 'all records on table without archived_at' do
+        it 'to be 0 when soft-deleted' do
+          license = License.create!
+          license.send(method)
 
-        expect(user.archived_at).not_to eq(nil)
-      end
-    end
+          expect(License.count).to eq(0)
+        end
 
-    context 'user.archive(:force)' do
-      it 'to be 0' do
-        user = User.create!
-        user.archive(:force)
+        it 'to be 0 when perma-deleted' do
+          license = License.create!
+          license.send(method, :force)
 
-        expect(User.count).to eq(0)
-      end
-    end
-
-    context 'user.bio.archive' do
-      it 'to be true' do
-        user = User.create!
-        Bio.create!(user_id: user.id)
-        user.bio.archive
-
-        expect(user.bio.archived?).to eq(true)
+          expect(License.count).to eq(0)
+        end
       end
 
-      it 'to be 0' do
-        user = User.create!
-        Bio.create!(user_id: user.id)
-        user.bio.archive(:force)
+      context 'all records on dependent table with archived_at' do
+        it 'to be true when soft-deleted' do
+          user = User.create!
+          Bio.create!(user_id: user.id)
+          user.bio.send(method)
 
-        expect(Bio.count).to eq(0)
-      end
-    end
+          expect(user.bio.archived?).to eq(true)
+        end
 
-    context 'license.archive' do
-      it 'to be 0' do
-        license = License.create!
-        license.archive
+        it 'to be 1 when soft-deleted' do
+          user = User.create!
+          Bio.create!(user_id: user.id)
+          user.bio.send(method)
 
-        expect(License.count).to eq(0)
-      end
-    end
+          expect(Bio.count).to eq(1)
+        end
 
-    context 'user.license.archive' do
-      it 'to be 0' do
-        user = User.create!
-        License.create!(user_id: user.id)
-        user.license.archive
+        it 'to be 0 when perma-deleted' do
+          user = User.create!
+          Bio.create!(user_id: user.id)
+          user.bio.send(method, :force)
 
-        expect(License.count).to eq(0)
-      end
-    end
-
-    context 'user.license.archive(:force)' do
-      it 'to be 0' do
-        user = User.create!
-        License.create!(user_id: user.id)
-        user.license.archive(:force)
-
-        expect(License.count).to eq(0)
-      end
-    end
-
-    context 'user.comments.last.archive' do
-      it 'to be 2' do
-        user = User.create!
-        2.times { Comment.create!(user_id: user.id) }
-        user.comments.last.archive
-
-        expect(Comment.count).to eq(2)
+          expect(Bio.count).to eq(0)
+        end
       end
 
-      it 'to be true' do
-        user = User.create!
-        2.times { Comment.create!(user_id: user.id) }
-        user.comments.last.archive
+      context 'all records on dependent table without archived_at' do
+        it 'to be 0 when soft-deleted' do
+          user = User.create!
+          License.create!(user_id: user.id)
+          user.license.send(method)
 
-        expect(Comment.first.unarchived?).to eq(true)
-        expect(Comment.last.archived?).to eq(true)
-      end
-    end
+          expect(License.count).to eq(0)
+        end
 
-    context 'user.cars.first.archive' do
-      it 'to be 1' do
-        user = User.create!
-        user.cars.create!
-        user.cars.first.archive
+        it 'to be 0 when perma-deleted' do
+          user = User.create!
+          License.create!(user_id: user.id)
+          user.license.send(method, :force)
 
-        expect(Car.count).to eq(1)
-      end
-
-      it 'to be 0' do
-        user = User.create!
-        car = user.cars.create!
-        Insurance.create!(car_id: car.id)
-        user.cars.first.archive
-
-        expect(Insurance.count).to eq(0)
+          expect(License.count).to eq(0)
+        end
       end
 
-      it 'to be 2' do
-        user = User.create!
-        car = user.cars.create!
-        2.times { car.drivers.create! }
-        user.cars.first.archive
+      context 'last record on dependent table with archived_at' do
+        it 'to be 2 when soft-deleted' do
+          user = User.create!
+          2.times { Comment.create!(user_id: user.id) }
+          user.comments.last.send(method)
 
-        expect(Driver.count).to eq(2)
+          expect(Comment.count).to eq(2)
+        end
+
+        it 'to be 1 when perma-deleted' do
+          user = User.create!
+          2.times { Comment.create!(user_id: user.id) }
+          user.comments.last.send(method, :force)
+
+          expect(Comment.count).to eq(1)
+        end
+
+        it 'to be true for each condition' do
+          user = User.create!
+          2.times { Comment.create!(user_id: user.id) }
+          user.comments.last.send(method)
+
+          expect(Comment.first.unarchived?).to eq(true)
+          expect(Comment.last.archived?).to eq(true)
+        end
       end
 
-      it 'to be 0' do
-        user = User.create!
-        car = user.cars.create!
-        2.times { car.drivers.create! }
-        user.cars.first.archive(:force)
+      context 'first record on dependent table with archived_at' do
+        it 'to be 2 when soft-deleted' do
+          user = User.create!
+          2.times { Car.create!(user_id: user.id) }
+          user.cars.first.send(method)
 
-        expect(Driver.count).to eq(0)
-      end
-    end
+          expect(Car.count).to eq(2)
+        end
 
-    context 'user.cars.first.archive' do
-      it 'to be 0' do
-        user = User.create!
-        car = user.cars.create!
-        Insurance.create!(car_id: car.id)
-        user.cars.first.archive(:force)
+        it 'to be 1 when perma-deleted' do
+          user = User.create!
+          2.times { Car.create!(user_id: user.id) }
+          user.cars.first.send(method, :force)
 
-        expect(Car.count).to eq(0)
-        expect(Insurance.count).to eq(0)
-      end
-    end
-  end
-
-  describe '.destroy' do
-    context 'user.destroy' do
-      it 'to be 1' do
-        user = User.create!
-        user.destroy
-
-        expect(User.count).to eq(1)
+          expect(Car.count).to eq(1)
+        end
       end
 
-      it 'to not be nil' do
-        user = User.create!
-        user.destroy
+      context 'all records on parent table with and dependent table without archived_at' do
+        it 'to be 0 when soft-deleted' do
+          user = User.create!
+          car = user.cars.create!
+          Insurance.create!(car_id: car.id)
+          user.cars.first.send(method)
 
-        expect(user.archived_at).not_to eq(nil)
-      end
-    end
+          expect(Insurance.count).to eq(0)
+        end
 
-    context 'user.destroy(:force)' do
-      it 'to be 0' do
-        user = User.create!
-        user.destroy(:force)
+        it 'to be 0 when perma-deleted' do
+          user = User.create!
+          car = user.cars.create!
+          Insurance.create!(car_id: car.id)
+          user.cars.first.send(method, :force)
 
-        expect(User.count).to eq(0)
-      end
-    end
-
-    context 'user.bio.destroy' do
-      it 'to be true' do
-        user = User.create!
-        Bio.create!(user_id: user.id)
-        user.bio.destroy
-
-        expect(user.bio.archived?).to eq(true)
+          expect(Insurance.count).to eq(0)
+        end
       end
 
-      it 'to be 0' do
-        user = User.create!
-        Bio.create!(user_id: user.id)
-        user.bio.destroy(:force)
+      context 'all records on parent table with and dependent table with archived_at' do
+        it 'to be 2 when soft-deleted' do
+          user = User.create!
+          car = user.cars.create!
+          2.times { car.drivers.create! }
+          user.cars.first.send(method)
 
-        expect(Bio.count).to eq(0)
+          expect(Driver.archived.count).to eq(2)
+        end
+
+        it 'to be 0 when perma-deleted' do
+          user = User.create!
+          car = user.cars.create!
+          2.times { car.drivers.create! }
+          user.cars.first.send(method, :force)
+
+          expect(Driver.count).to eq(0)
+        end
       end
     end
 
-    context 'license.destroy' do
-      it 'to be 0' do
-        license = License.create!
-        license.destroy
+    describe ".#{method}_all(!)" do
+      context 'all records on dependent table with archived_at' do
+        it 'to be all the proper counts when soft-delete' do
+          user = User.create!
+          car = user.cars.create!
+          2.times { car.drivers.create! }
+          Insurance.create(car_id: car.id)
 
-        expect(License.count).to eq(0)
-      end
-    end
+          user.cars.send("#{method}_all")
 
-    context 'user.license.destroy' do
-      it 'to be 0' do
-        user = User.create!
-        License.create!(user_id: user.id)
-        user.license.destroy
-
-        expect(License.count).to eq(0)
-      end
-    end
-
-    context 'user.license.destroy(:force)' do
-      it 'to be 0' do
-        user = User.create!
-        License.create!(user_id: user.id)
-        user.license.destroy(:force)
-
-        expect(License.count).to eq(0)
-      end
-    end
-
-    context 'user.comments.last.destroy' do
-      it 'to be 2' do
-        user = User.create!
-        2.times { Comment.create!(user_id: user.id) }
-        user.comments.last.destroy
-
-        expect(Comment.count).to eq(2)
+          expect(Car.count).to eq(1)
+          expect(Driver.count).to eq(2)
+          expect(Insurance.count).to eq(0)
+        end
       end
 
-      it 'to be true' do
-        user = User.create!
-        2.times { Comment.create!(user_id: user.id) }
-        user.comments.last.destroy
+      context 'all records on dependent table with archived_at' do
+        it 'to be all the proper counts when perma-delete' do
+          user = User.create!
+          car = user.cars.create!
+          2.times { car.drivers.create! }
+          Insurance.create(car_id: car.id)
 
-        expect(Comment.first.unarchived?).to eq(true)
-        expect(Comment.last.archived?).to eq(true)
-      end
-    end
+          user.cars.send("#{method}_all!")
 
-    context 'user.cars.first.destroy' do
-      it 'to be 1' do
-        user = User.create!
-        user.cars.create!
-        user.cars.first.destroy
-
-        expect(Car.count).to eq(1)
-      end
-
-      it 'to be 0' do
-        user = User.create!
-        car = user.cars.create!
-        Insurance.create!(car_id: car.id)
-        user.cars.first.destroy
-
-        expect(Insurance.count).to eq(0)
-      end
-
-      it 'to be 2' do
-        user = User.create!
-        car = user.cars.create!
-        2.times { car.drivers.create! }
-        user.cars.first.destroy
-
-        expect(Driver.count).to eq(2)
-      end
-
-      it 'to be 0' do
-        user = User.create!
-        car = user.cars.create!
-        2.times { car.drivers.create! }
-        user.cars.first.destroy(:force)
-
-        expect(Driver.count).to eq(0)
-      end
-    end
-
-    context 'user.cars.first.destroy' do
-      it 'to be 0' do
-        user = User.create!
-        car = user.cars.create!
-        Insurance.create!(car_id: car.id)
-        user.cars.first.destroy(:force)
-
-        expect(Car.count).to eq(0)
-        expect(Insurance.count).to eq(0)
-      end
-    end
-  end
-
-  describe '.destroy_all' do
-    context 'user.destroy_all' do
-      it 'to be 3' do
-        3.times { User.create! }
-        User.destroy_all
-
-        expect(User.count).to eq(3)
-      end
-
-      it 'to be 2' do
-        user = User.create!
-        car = user.cars.create!
-        2.times { car.drivers.create! }
-        User.destroy_all
-
-        expect(Driver.count).to eq(2)
+          expect(Car.count).to eq(0)
+          expect(Driver.count).to eq(0)
+          expect(Insurance.count).to eq(0)
+        end
       end
     end
   end
 
   describe '.delete_all' do
-    context 'user.delete_all' do
-      it 'to be 0' do
-        3.times { User.create! }
-        User.delete_all
-
-        expect(User.count).to eq(0)
-      end
-
-      it 'to be 0' do
+    context 'all records on dependent table with archived_at' do
+      it 'to be all the proper counts when perma-delete' do
         user = User.create!
         car = user.cars.create!
         2.times { car.drivers.create! }
-        User.delete_all
+        Insurance.create(car_id: car.id)
 
+        user.cars.delete_all
+
+        expect(Car.count).to eq(0)
         expect(Driver.count).to eq(2)
+        expect(Insurance.count).to eq(1)
       end
     end
   end
 
   describe '.to_archival' do
-    context 'user.to_archival' do
-      it 'to be "Unarchived"' do
-        user = User.create!
+    it 'to be "Unarchived"' do
+      user = User.create!
 
-        expect(user.to_archival).to eq('Unarchived')
-      end
+      expect(user.to_archival).to eq('Unarchived')
+    end
 
-      it 'to be "Archived"' do
-        user = User.create!
-        user.destroy
+    it 'to be "Archived"' do
+      user = User.create!
+      user.destroy
 
-        expect(user.to_archival).to eq('Archived')
-      end
+      expect(user.to_archival).to eq('Archived')
     end
   end
 
-  describe '.unarchive' do
-    context 'user.unarchive' do
-      it 'to be 1' do
-        user = User.create!
-        user.archive
-        user.unarchive
+  # TODO: add counter cache test
 
-        expect(User.count).to eq(1)
+  %i[unarchive undestroy].each do |method|
+    describe ".#{method}" do
+      context 'all records on table with archived_at' do
+        it 'to be 1 when soft-deleted' do
+          user = User.create!
+          user.archive
+          user.send(method)
+
+          expect(User.count).to eq(1)
+        end
+
+        it 'to be nil when soft-deleted' do
+          user = User.create!
+          user.archive
+          user.send(method)
+
+          expect(user.archived_at).to eq(nil)
+        end
+
+        it 'to raise error when perma-deleted' do
+          user = User.create!
+          user.archive(:force)
+
+          expect { user.send(method) }.to raise_error(ActiveRecord::RecordNotFound)
+        end
       end
 
-      it 'to be nil' do
-        user = User.create!
-        user.archive
-        user.unarchive
+      context 'all records on table without archived_at' do
+        it 'to be 0 when soft-deleted' do
+          license = License.create!
+          license.archive
 
-        expect(user.archived_at).to eq(nil)
+          expect(License.count).to eq(0)
+        end
+
+        it 'to be 0 when perma-deleted' do
+          license = License.create!
+          license.archive(:force)
+
+          expect(License.count).to eq(0)
+        end
+
+        it 'to raise error when perma-deleted' do
+          license = License.create!
+          license.archive(:force)
+
+          expect { license.send(method) }.to raise_error(ActiveRecord::RecordNotFound)
+        end
       end
 
-      it 'to be 0' do
-        user = User.create!
-        user.archive(:force)
+      context 'all records on dependent table with archived_at' do
+        it 'to be true when soft-deleted' do
+          user = User.create!
+          Bio.create!(user_id: user.id)
+          user.bio.archive
+          user.bio.unarchive
 
-        expect { user.unarchive }.to raise_error(ActiveRecord::RecordNotFound)
-      end
-    end
+          expect(user.bio.unarchived?).to eq(true)
+        end
 
-    context 'user.bio.unarchive' do
-      it 'to be true' do
-        user = User.create!
-        Bio.create!(user_id: user.id)
-        user.bio.archive
-        user.bio.unarchive
+        it 'to raise error when perma-deleted' do
+          user = User.create!
+          Bio.create!(user_id: user.id)
+          user.bio.archive(:force)
 
-        expect(user.bio.unarchived?).to eq(true)
-      end
-
-      it 'to be 0' do
-        user = User.create!
-        Bio.create!(user_id: user.id)
-        user.bio.archive(:force)
-
-        expect { user.cars.first.unarchive }.to raise_error(NoMethodError)
-      end
-    end
-
-    context 'license.unarchive' do
-      it 'to be 0' do
-        license = License.create!
-        license.archive
-        license.unarchive
-
-        expect(License.count).to eq(0)
-      end
-    end
-
-    context 'user.license.unarchive' do
-      it 'to be 0' do
-        user = User.create!
-        License.create!(user_id: user.id)
-        user.license.archive
-        user.license.unarchive
-
-        expect(License.count).to eq(0)
-      end
-    end
-
-    context 'user.license.unarchive' do
-      it 'to be 0' do
-        user = User.create!
-        License.create!(user_id: user.id)
-        user.license.archive(:force)
-        user.license.unarchive
-
-        expect(License.count).to eq(0)
-      end
-    end
-
-    context 'user.comments.last.archive' do
-      it 'to be 2' do
-        user = User.create!
-        2.times { Comment.create!(user_id: user.id) }
-        user.comments.last.archive
-
-        expect(Comment.count).to eq(2)
+          expect { user.bio.send(method) }.to raise_error(ActiveRecord::RecordNotFound)
+        end
       end
 
-      it 'to be true' do
-        user = User.create!
-        2.times { Comment.create!(user_id: user.id) }
-        user.comments.last.archive
+      context 'all records on dependent table with archived_at' do
+        it 'to be 2 when soft-deleted' do
+          user = User.create!
+          2.times { user.cars.create! }
+          user.archive
+          user.send(method)
 
-        expect(Comment.first.unarchived?).to eq(true)
-        expect(Comment.last.archived?).to eq(true)
-      end
-    end
+          expect(Car.unarchived.count).to eq(2)
+        end
 
-    context 'user.cars.first.unarchive' do
-      it 'to be 1' do
-        user = User.create!
-        car = user.cars.create!
-        Insurance.create!(car_id: car.id)
-        user.cars.first.archive
-        user.cars.first.unarchive
 
-        expect(Car.count).to eq(1)
-      end
+        it 'to be 2 when perma-deleted' do
+          user = User.create!
+          2.times { user.cars.create! }
+          user.archive(:force)
+          user.send(method)
 
-      it 'to be 0' do
-        user = User.create!
-        car = user.cars.create!
-        Insurance.create!(car_id: car.id)
-        user.cars.first.archive
-        user.cars.first.unarchive
-
-        expect(Insurance.count).to eq(0)
-      end
-
-      it 'to be 2' do
-        user = User.create!
-        car = user.cars.create!
-        2.times { car.drivers.create! }
-        user.cars.first.archive
-        user.cars.first.unarchive
-
-        expect(Driver.count).to eq(2)
-      end
-
-      it 'to be raise error' do
-        user = User.create!
-        user.cars.create!
-        user.cars.first.archive(:force)
-
-        expect { user.cars.first.unarchive }.to raise_error(NoMethodError)
+          expect(Car.unarchived.count).to eq(0)
+        end
       end
     end
   end
