@@ -12,7 +12,7 @@ Layout/EmptyLinesAroundModuleBody:
   Enabled: false
 LineLength:
   Max: 100
-Lint/RescueWithoutErrorClass:
+Lint/HandleExceptions:
   Enabled: false
 Lint/ScriptPermission:
   Enabled: false
@@ -20,7 +20,13 @@ Metrics/MethodLength:
   Enabled: false
 Metrics/ModuleLength:
   Enabled: false
+Naming/AccessorMethodName:
+  Enabled: false
 Style/Alias:
   EnforcedStyle: prefer_alias_method
 Style/Documentation:
+  Enabled: false
+Style/ExpandPathArguments:
+  Enabled: false
+Style/RescueStandardError:
   Enabled: false

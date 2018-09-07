@@ -85,10 +85,6 @@ module ActiveArchive
 
       begin
         should_ignore_validations?(force) ? record.save(validate: false) : record.save!
-
-        # TODO:
-        # https://github.com/remind101/permanent_records/commit/769f4d71c3b97ff3eaf966ec951fa7b80cf05ee7
-
         @attributes = record.instance_variable_get('@attributes')
       rescue => error
         record.destroy
@@ -143,9 +139,10 @@ module ActiveArchive
         end
       end
 
-      try(:reload)
+      reload
     end
 
+    # rubocop:disable Metrics/AbcSize
     def destroyed_dependent_relations
       dependent_permanent_reflections(self.class).map do |name, relation|
         case relation.macro.to_s.gsub('has_', '').to_sym
@@ -160,6 +157,7 @@ module ActiveArchive
         end
       end
     end
+    # rubocop:enable Metrics/AbcSize
 
     def attempt_notifying_observers(callback)
       notify_observers(callback)
@@ -175,9 +173,9 @@ module ActiveArchive
       end
     end
 
-    def permanently_delete_records_after(&_block)
+    def permanently_delete_records_after(&block)
       dependent_records = dependent_record_ids
-      result = yield(_block)
+      result = yield(block)
       permanently_delete_records(dependent_records) if result
       result
     end

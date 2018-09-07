@@ -3,6 +3,8 @@
 ActiveRecord::Schema.define(version: 1) do
   create_table :users, force: true do |t|
     t.string :name
+    t.integer :cars_count, default: 0
+    t.integer :comments_count, default: 0
     t.timestamps null: false
   end
 

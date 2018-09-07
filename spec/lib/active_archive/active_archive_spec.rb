@@ -322,14 +322,42 @@ describe ActiveArchive do
         end
 
 
-        it 'to be 2 when perma-deleted' do
+        it 'to be 0 when perma-deleted' do
           user = User.create!
           2.times { user.cars.create! }
           user.archive(:force)
-          user.send(method)
 
           expect(Car.unarchived.count).to eq(0)
         end
+      end
+    end
+  end
+
+  describe '.counter_cache' do
+    context 'increment counters' do
+      it 'to be 2 when dependents created' do
+        user = User.create!
+        2.times { user.cars.create! }
+
+        expect(user.cars_count).to eq(2)
+      end
+    end
+
+    context 'decrement counters' do
+      it 'to be 2 when soft-deleted' do
+        user = User.create!
+        2.times { user.cars.create! }
+        user.cars.last.archive
+
+        expect(user.cars_count).to eq(2)
+      end
+
+      it 'to be 1 when perma-deleted' do
+        user = User.create!
+        2.times { user.cars.create! }
+        user.cars.last.archive(:force)
+
+        expect(user.cars_count).to eq(1)
       end
     end
   end
