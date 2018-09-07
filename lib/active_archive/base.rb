@@ -143,7 +143,7 @@ module ActiveArchive
         end
       end
 
-      reload
+      try(:reload)
     end
 
     def destroyed_dependent_relations
