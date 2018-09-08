@@ -333,8 +333,8 @@ describe ActiveArchive do
     end
   end
 
-  describe '.previous_changes' do
-    context 'add archived_at to dirty attributes' do
+  describe '.dirty_attributes' do
+    context 'add archived_at to mutations' do
       it 'to be true for changes' do
         user = User.create!
         user.archive
