@@ -88,10 +88,10 @@ module ActiveArchive
 
         if ::ActiveRecord::VERSION::MAJOR >= 5 && ::ActiveRecord::VERSION::MINOR >= 2
           # TODO
-        elsif ::ActiveRecord::VERSION::MAJOR >= 5
+        elsif ::ActiveRecord::VERSION::MAJOR >= 5 && ::ActiveRecord::VERSION::MINOR >= 1
           @changed_attributes = record.send(:saved_changes)
-          @previous_mutation_tracker = record.send(:previous_mutation_tracker)
-          @mutation_tracker = nil
+        elsif ::ActiveRecord::VERSION::MAJOR >= 5 && ::ActiveRecord::VERSION::MINOR >= 0
+          @changed_attributes = record.send(:previous_changes)
         elsif ::ActiveRecord::VERSION::MAJOR >= 4
           @previously_changed = record.instance_variable_get('@previously_changed')
         end
