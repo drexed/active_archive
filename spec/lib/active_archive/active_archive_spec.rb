@@ -371,6 +371,15 @@ describe ActiveArchive do
         expect(user.changes.keys.include?('archived_at')).to eq(true)
       end
     end
+
+    context 'add archived_at to mutations' do
+      it 'to be true for archived_at_changed?' do
+        user = User.create!
+        user.archive
+
+        expect(user.archived_at_changed?).to eq(true)
+      end
+    end
   end
 
 end

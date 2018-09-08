@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# require "active_record/attribute_mutation_tracker"
+
 module ActiveArchive
   module Base
 
@@ -87,7 +89,7 @@ module ActiveArchive
         should_ignore_validations?(force) ? record.save(validate: false) : record.save!
 
         if ::ActiveRecord::VERSION::MAJOR >= 5 && ::ActiveRecord::VERSION::MINOR >= 2
-          # TODO
+          @attributes_changed_by_setter = record.send(:saved_changes)
         elsif ::ActiveRecord::VERSION::MAJOR >= 5 && ::ActiveRecord::VERSION::MINOR >= 1
           @changed_attributes = record.send(:saved_changes)
         elsif ::ActiveRecord::VERSION::MAJOR >= 5 && ::ActiveRecord::VERSION::MINOR >= 0
