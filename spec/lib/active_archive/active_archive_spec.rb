@@ -333,6 +333,17 @@ describe ActiveArchive do
     end
   end
 
+  describe '.previous_changes' do
+    context 'add archived_at to dirty attributes' do
+      it 'to be true for changes' do
+        user = User.create!
+        user.archive
+
+        expect(user.changes.keys.include?('archived_at')).to eq(true)
+      end
+    end
+  end
+
   describe '.counter_cache' do
     context 'increment counters' do
       it 'to be 2 when dependents created' do
