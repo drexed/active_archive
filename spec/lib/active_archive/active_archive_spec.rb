@@ -333,17 +333,6 @@ describe ActiveArchive do
     end
   end
 
-  describe '.dirty_attributes' do
-    context 'add archived_at to mutations' do
-      it 'to be true for changes' do
-        user = User.create!
-        user.archive
-
-        expect(user.changes.keys.include?('archived_at')).to eq(true)
-      end
-    end
-  end
-
   describe '.counter_cache' do
     context 'increment counters' do
       it 'to be 2 when dependents created' do
@@ -369,6 +358,17 @@ describe ActiveArchive do
         user.cars.last.archive(:force)
 
         expect(user.cars_count).to eq(1)
+      end
+    end
+  end
+
+  describe '.dirty_attributes' do
+    context 'add archived_at to mutations' do
+      it 'to be true for changes' do
+        user = User.create!
+        user.archive
+
+        expect(user.changes.keys.include?('archived_at')).to eq(true)
       end
     end
   end
