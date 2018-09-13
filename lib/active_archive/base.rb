@@ -45,6 +45,12 @@ module ActiveArchive
           permanently_delete_records_after { super() }
         else
           destroy_with_active_archive(force)
+
+          if ::ActiveRecord::VERSION::MAJOR >= 5
+            archived_at_will_change!
+          elsif ::ActiveRecord::VERSION::MAJOR >= 4
+            attribute_will_change!('archived_at')
+          end
         end
       end
     end
@@ -85,6 +91,13 @@ module ActiveArchive
       return self unless archivable?
 
       record = get_archived_record
+
+      if ::ActiveRecord::VERSION::MAJOR >= 5
+        record.archived_at_will_change!
+      elsif ::ActiveRecord::VERSION::MAJOR >= 4
+        record.attribute_will_change!('archived_at')
+      end
+
       record.archived_at = value
 
       begin
@@ -237,5 +250,5 @@ module ActiveArchive
 end
 
 ActiveSupport.on_load(:active_record) do
-  ActiveRecord::Base.send :include, ActiveArchive::Base
+  ActiveRecord::Base.include(ActiveArchive::Base)
 end

@@ -364,20 +364,46 @@ describe ActiveArchive do
 
   describe '.dirty_attributes' do
     context 'add archived_at to mutations' do
+      it 'to be true for archived_at_changed?' do
+        user = User.create!
+        user.archive
+
+        expect(user.archived_at_changed?).to eq(true)
+      end
+
+      it 'to be true for archived_at_change' do
+        user = User.create!
+        user.archive
+
+        expect(user.archived_at_change.is_a?(Array)).to eq(true)
+      end
+
+      it 'to be true for changed' do
+        user = User.create!
+        user.archive
+
+        expect(user.changed.include?('archived_at')).to eq(true)
+      end
+
       it 'to be true for changes' do
         user = User.create!
         user.archive
 
         expect(user.changes.keys.include?('archived_at')).to eq(true)
       end
-    end
 
-    context 'add archived_at to mutations' do
-      it 'to be true for archived_at_changed?' do
+      it 'to be true for changes_to_save' do
         user = User.create!
         user.archive
 
-        expect(user.archived_at_changed?).to eq(true)
+        expect(user.changes_to_save.include?('archived_at')).to eq(true)
+      end
+
+      it 'to be true for will_save_change_to_archived_at?' do
+        user = User.create!
+        user.archive
+
+        expect(user.will_save_change_to_archived_at?).to eq(true)
       end
     end
   end
