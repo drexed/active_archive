@@ -80,8 +80,10 @@ module ActiveArchive
       self.class.unscoped.find(id)
     end
 
+    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def set_archived_at(value, force = nil)
       return self unless archivable?
+
       record = get_archived_record
       record.archived_at = value
 
@@ -104,6 +106,7 @@ module ActiveArchive
         raise error
       end
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     def each_counter_cache
       _reflections.each do |name, reflection|
@@ -182,6 +185,7 @@ module ActiveArchive
       dependent_reflections(self.class).reduce({}) do |records, (key, _)|
         found = Array(send(key)).compact
         next records if found.empty?
+
         records.update(found.first.class => found.map(&:id))
       end
     end
@@ -198,6 +202,7 @@ module ActiveArchive
         ids.each do |id|
           record = klass.unscoped.where(klass.primary_key => id).first
           next unless record
+
           record.archived_at = nil
           record.destroy(:force)
         end
