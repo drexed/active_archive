@@ -11,7 +11,7 @@ ActiveRecord::Schema.define(version: 1) do
   create_table :licenses, force: true do |t|
     t.references :user
     t.string :number
-    t.timestamps skip: true
+    t.timestamps archive: false
   end
 
   create_table :bios, force: true do |t|

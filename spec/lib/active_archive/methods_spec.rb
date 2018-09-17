@@ -35,36 +35,11 @@ describe ActiveArchive::Methods do
 
     it 'to be 2 when parent table is archivable and dependent table is soft-deleted' do
       user = User.create!
-      car  = user.cars.create!
+      car = user.cars.create!
       2.times { car.drivers.create! }
       User.archive_all
 
       expect(Driver.archived.count).to eq(2)
-    end
-  end
-
-  describe '.archive_all!' do
-    it 'to be 0 when table is unarchivable and everything is perma-deleted' do
-      3.times { License.create! }
-      License.archive_all!
-
-      expect(License.count).to eq(0)
-    end
-
-    it 'to be 0 when table is archivable and is soft-deleted' do
-      3.times { User.create! }
-      User.archive_all!
-
-      expect(User.archived.count).to eq(0)
-    end
-
-    it 'to be 0 when parent table is archivable and dependent table is soft-deleted' do
-      user = User.create!
-      car  = user.cars.create!
-      2.times { car.drivers.create! }
-      User.archive_all!
-
-      expect(Driver.count).to eq(0)
     end
   end
 
@@ -87,7 +62,7 @@ describe ActiveArchive::Methods do
 
     it 'to be 2 when parent table is archivable and dependent table is soft-deleted and revived' do
       user = User.create!
-      car  = user.cars.create!
+      car = user.cars.create!
       2.times { car.drivers.create! }
       User.archive_all
       User.unarchive_all

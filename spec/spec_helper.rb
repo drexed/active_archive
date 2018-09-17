@@ -12,7 +12,6 @@ I18n.enforce_available_locales = false
 
 ActiveArchive.configure do |config|
   config.all_records_archivable = true
-  config.dependent_record_window = 3.seconds
 end
 
 ActiveRecord::Base.configurations = YAML.load_file(spec_support_path.join('config/database.yml'))

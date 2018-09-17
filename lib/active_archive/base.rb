@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# require "active_record/attribute_mutation_tracker"
-
 module ActiveArchive
   module Base
 
@@ -9,7 +7,10 @@ module ActiveArchive
       base.extend Methods
       base.extend Scopes
 
-      base.instance_eval { define_model_callbacks(:unarchive) }
+      base.instance_eval do
+        define_model_callbacks :archive, only: %i[before after]
+        define_model_callbacks :unarchive, only: %i[before after]
+      end
     end
 
     def archivable?
@@ -28,34 +29,31 @@ module ActiveArchive
       !archivable?
     end
 
-    def unarchive(opts = nil)
+    def unarchive
+      return if unarchivable?
+
       with_transaction_returning_status do
-        records = should_unarchive_parent_first?(opts) ? unarchival.reverse : unarchival
-        records.each { |rec| rec.call(opts) }
+        run_callbacks :unarchive do
+          mark_as_unarchived
+          mark_relections_as_unarchived
 
-        self
-      end
-    end
-
-    alias_method :undestroy, :unarchive
-
-    def destroy(force = nil)
-      with_transaction_returning_status do
-        if unarchivable? || should_force_destroy?(force)
-          permanently_delete_records_after { super() }
-        else
-          destroy_with_active_archive(force)
-
-          if ::ActiveRecord::VERSION::MAJOR >= 5
-            archived_at_will_change!
-          elsif ::ActiveRecord::VERSION::MAJOR >= 4
-            attribute_will_change!('archived_at')
-          end
+          true
         end
       end
     end
 
-    alias_method :archive, :destroy
+    def archive
+      return destroy if unarchivable?
+
+      with_transaction_returning_status do
+        run_callbacks :archive do
+          mark_as_archived
+          mark_relections_as_archived
+
+          true
+        end
+      end
+    end
 
     def to_archival
       I18n.t("active_archive.archival.#{archived? ? :archived : :unarchived}")
@@ -63,187 +61,43 @@ module ActiveArchive
 
     private
 
-    def unarchival
-      [
-        lambda do |validate|
-          unarchive_destroyed_dependent_records(validate)
-        end,
-        lambda do |validate|
-          run_callbacks(:unarchive) do
-            set_archived_at(nil, validate)
-
-            each_counter_cache do |assoc_class, counter_cache_column, assoc_id|
-              assoc_class.increment_counter(counter_cache_column, assoc_id)
-            end
-
-            true
-          end
-        end
-      ]
+    def mark_as_archived
+      self.archived_at = Time.now
+      save(validate: false)
     end
 
-    def get_archived_record
-      self.class.unscoped.find(id)
+    def mark_as_unarchived
+      self.archived_at = nil
+      save(validate: false)
     end
 
-    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    def set_archived_at(value, force = nil)
-      return self unless archivable?
+    def mark_relections_as_archived
+      self.class.reflections.each do |table_name, reflection|
+        next unless dependent_destroy?(reflection)
 
-      record = get_archived_record
-
-      if ::ActiveRecord::VERSION::MAJOR >= 5
-        record.archived_at_will_change!
-      elsif ::ActiveRecord::VERSION::MAJOR >= 4
-        record.attribute_will_change!('archived_at')
-      end
-
-      record.archived_at = value
-
-      begin
-        should_ignore_validations?(force) ? record.save(validate: false) : record.save!
-
-        if ::ActiveRecord::VERSION::MAJOR >= 5 && ::ActiveRecord::VERSION::MINOR >= 2
-          @attributes_changed_by_setter = record.send(:saved_changes)
-        elsif ::ActiveRecord::VERSION::MAJOR >= 5 && ::ActiveRecord::VERSION::MINOR >= 1
-          @changed_attributes = record.send(:saved_changes)
-        elsif ::ActiveRecord::VERSION::MAJOR >= 5 && ::ActiveRecord::VERSION::MINOR >= 0
-          @changed_attributes = record.send(:previous_changes)
-        elsif ::ActiveRecord::VERSION::MAJOR >= 4
-          @previously_changed = record.instance_variable_get('@previously_changed')
-        end
-
-        @attributes = record.instance_variable_get('@attributes')
-      rescue => error
-        record.destroy
-        raise error
-      end
-    end
-    # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-
-    def each_counter_cache
-      _reflections.each do |name, reflection|
-        next unless respond_to?(name.to_sym)
-
-        association = send(name.to_sym)
-
-        next if association.nil?
-        next unless reflection.belongs_to? && reflection.counter_cache_column
-
-        yield(association.class, reflection.counter_cache_column, send(reflection.foreign_key))
+        klass = relection_klass(table_name)
+        action = klass.archivable? ? :archive : :destroy
+        klass.find_each(&action)
       end
     end
 
-    def destroy_with_active_archive(force = nil)
-      run_callbacks(:destroy) do
-        if archived? || new_record?
-          save
-        else
-          set_archived_at(Time.now, force)
+    def mark_relections_as_unarchived
+      self.class.reflections.each do |table_name, reflection|
+        next unless dependent_destroy?(reflection)
 
-          each_counter_cache do |assoc_class, counter_cache_column, assoc_id|
-            assoc_class.decrement_counter(counter_cache_column, assoc_id)
-          end
-        end
+        klass = relection_klass(table_name)
+        next unless klass.archivable?
 
-        true
-      end
-
-      archived? ? self : false
-    end
-
-    def add_record_window(_request, name, reflection)
-      qtn = reflection.table_name
-      window = ActiveArchive.configuration.dependent_record_window
-      query = "#{qtn}.archived_at > ? AND #{qtn}.archived_at < ?"
-
-      send(name).unscope(where: :archived_at)
-                .where(query, archived_at - window, archived_at + window)
-    end
-
-    def unarchive_destroyed_dependent_records(force = nil)
-      destroyed_dependent_relations.each do |relation|
-        relation.to_a.each do |destroyed_dependent_record|
-          destroyed_dependent_record.try(:unarchive, force)
-        end
-      end
-
-      reload
-    end
-
-    # rubocop:disable Metrics/AbcSize
-    def destroyed_dependent_relations
-      dependent_permanent_reflections(self.class).map do |name, relation|
-        case relation.macro.to_s.gsub('has_', '').to_sym
-        when :many
-          if archived_at
-            add_record_window(send(name), name, relation)
-          else
-            send(name).unscope(where: :archived_at)
-          end
-        when :one, :belongs_to
-          self.class.unscoped { Array(send(name)) }
-        end
-      end
-    end
-    # rubocop:enable Metrics/AbcSize
-
-    def attempt_notifying_observers(callback)
-      notify_observers(callback)
-    rescue NoMethodError
-      # do nothing
-    end
-
-    def dependent_record_ids
-      dependent_reflections(self.class).reduce({}) do |records, (key, _)|
-        found = Array(send(key)).compact
-        next records if found.empty?
-
-        records.update(found.first.class => found.map(&:id))
+        klass.find_each(&:unarchive)
       end
     end
 
-    def permanently_delete_records_after(&block)
-      dependent_records = dependent_record_ids
-      result = yield(block)
-      permanently_delete_records(dependent_records) if result
-      result
+    def dependent_destroy?(reflection)
+      reflection.options[:dependent] == :destroy
     end
 
-    def permanently_delete_records(dependent_records)
-      dependent_records.each do |klass, ids|
-        ids.each do |id|
-          record = klass.unscoped.where(klass.primary_key => id).first
-          next unless record
-
-          record.archived_at = nil
-          record.destroy(:force)
-        end
-      end
-    end
-
-    def dependent_reflections(klass)
-      klass.reflections.select do |_, reflection|
-        reflection.options[:dependent] == :destroy
-      end
-    end
-
-    def dependent_permanent_reflections(klass)
-      dependent_reflections(klass).select do |_name, reflection|
-        reflection.klass.archivable?
-      end
-    end
-
-    def should_force_destroy?(force)
-      force.is_a?(Hash) ? force[:force] : (force == :force)
-    end
-
-    def should_ignore_validations?(force)
-      force.is_a?(Hash) && (force[:validate] == false)
-    end
-
-    def should_unarchive_parent_first?(order)
-      order.is_a?(Hash) && (order[:reverse] == true)
+    def relection_klass(table_name)
+      table_name.classify.constantize
     end
 
   end

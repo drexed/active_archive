@@ -8,20 +8,12 @@ module ActiveArchive
     end
 
     def archive_all(conditions = nil)
-      (conditions ? where(conditions) : all).to_a.each(&:archive)
+      (conditions ? where(conditions) : all).each(&:archive)
     end
-
-    def archive_all!(conditions = nil)
-      (conditions ? where(conditions) : all).to_a.each { |r| r.send(:archive, :force) }
-    end
-
-    alias_method :destroy_all!, :archive_all!
 
     def unarchive_all(conditions = nil)
-      (conditions ? where(conditions) : all).to_a.each(&:unarchive)
+      (conditions ? where(conditions) : all).each(&:unarchive)
     end
-
-    alias_method :undestroy_all, :unarchive_all
 
   end
 end

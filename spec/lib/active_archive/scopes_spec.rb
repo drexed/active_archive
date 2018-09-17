@@ -5,7 +5,7 @@ require 'spec_helper'
 describe ActiveArchive::Scopes do
   before do
     3.times { User.create! }
-    6.times { User.create!.destroy }
+    6.times { User.create!.archive }
   end
 
   describe '.archived' do

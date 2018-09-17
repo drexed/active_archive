@@ -35,7 +35,6 @@ Or install it yourself as:
 ```ruby
 ActiveArchive.configure do |config|
   config.all_records_archivable = false
-  config.dependent_record_window = 3.seconds
 end
 ```
 
@@ -44,31 +43,16 @@ end
 **Options:**
  * `archive`
  * `archive_all`
- * `archive_all!`
- * `destroy`
- * `destroy_all`
- * `destroy_all!`
- * `delete`
- * `delete_all`
  * `unarchive`
  * `unarchive_all`
- * `undestroy`
- * `undestroy_all`
 
 ```ruby
 User.first.archive          #=> archives User record and dependents
-User.first.destroy          #=> archives User record and dependents
-User.first.delete           #=> deletes User record and dependents
 User.first.unarchive        #=> unarchives User record and dependents
 
 User.first.to_archival      #=> returns archival state string
 
-User.first.archive(:force)  #=> destroys User record and dependents
-User.first.destroy(:force)  #=> destroys User record and dependents
-
 User.archive_all            #=> archives all User records and dependents
-User.destroy_all            #=> archives all User records and dependents
-User.delete_all             #=> deletes all User records and dependents
 User.unarchive_all          #=> unarchives all User record and dependents
 ```
 
