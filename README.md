@@ -5,7 +5,7 @@
 
 ActiveArchive is a library for preventing database records from being destroyed.
 
-**NOTE: version >= '6.0.0' has a small breaking change with the timestamp key and initializer file.**
+**NOTE: version >= '6.0.0' has a breaking change with the migration timestamps, initializer options, and model/record callbacks.**
 
 ## Installation
 
