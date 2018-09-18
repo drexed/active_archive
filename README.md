@@ -5,6 +5,8 @@
 
 ActiveArchive is a library for preventing database records from being destroyed.
 
+**NOTE: version >= '6.0.0' has a small breaking change with the timestamp key and initializer file.**
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -40,13 +42,21 @@ end
 ```
 
 ## Usage
-To work properly, models which could be archieved must have column `archieved_at` with type `datetime`. If the model table has not this column, record will be destroy instead of archieved.
+To work properly, models which could be archived must have column `archived_at` with type `datetime`. If the model table has not this column, record will be destroy instead of archived.
+
 
 For adding this column, you can use this migration, as example:
 
 ```ruby
 class AddArchivedAtColumns < ActiveRecord::Migration
   def change
+    # Adds archived_at automatically
+    t.timestamp
+
+    # Does NOT add archived_at automatically
+    t.timestamp archive: false
+
+    # Manual column
     add_column :your_model, :archived_at, :datetime
   end
 end
@@ -73,12 +83,10 @@ User.unarchive_all          #=> unarchives all User record and dependents
 ## Scopes
 
 **Options:**
- * `default`
  * `archived`
  * `unarchived`
 
 ```ruby
-User.all                    #=> returns all records
 User.archived.all           #=> returns only archived record
 User.unarchived.all         #=> returns only unarchived record
 ```
