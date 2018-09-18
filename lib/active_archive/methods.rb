@@ -8,11 +8,17 @@ module ActiveArchive
     end
 
     def archive_all(conditions = nil)
-      (conditions ? where(conditions) : all).each(&:archive)
+      records(conditions, action: :archive)
     end
 
     def unarchive_all(conditions = nil)
-      (conditions ? where(conditions) : all).each(&:unarchive)
+      records(conditions, action: :unarchive)
+    end
+
+    private
+
+    def records(conditions = nil, action:)
+      where(conditions).find_each(&action)
     end
 
   end

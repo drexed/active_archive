@@ -37,7 +37,7 @@ module ActiveArchive
           mark_as_unarchived
           mark_relections_as_unarchived
 
-          true
+          self
         end
       end
     end
@@ -50,7 +50,7 @@ module ActiveArchive
           mark_as_archived
           mark_relections_as_archived
 
-          true
+          self
         end
       end
     end
