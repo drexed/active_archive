@@ -75,9 +75,17 @@ module ActiveArchive
       self.class.reflections.each do |table_name, reflection|
         next unless dependent_destroy?(reflection)
 
-        klass = relection_klass(table_name)
-        action = klass.archivable? ? :archive : :destroy
-        klass.find_each(&action)
+        dependents = reflection_dependents(table_name)
+        next if dependents.nil?
+
+        action = case [reflection_marco(reflection), archivable?]
+                 when [:one, true] then :archive
+                 when [:one, false] then :destroy
+                 when [:many, true] then :archive_all
+                 when [:many, false] then :destroy_all
+                 end
+
+        dependents.send(action)
       end
     end
 
@@ -88,7 +96,15 @@ module ActiveArchive
         klass = relection_klass(table_name)
         next unless klass.archivable?
 
-        klass.find_each(&:unarchive)
+        dependents = reflection_dependents(table_name)
+        next if dependents.nil?
+
+        action = case reflection_marco(reflection)
+                 when :one then :unarchive
+                 when :many then :unarchive_all
+                 end
+
+        dependents.send(action)
       end
     end
 
@@ -96,8 +112,16 @@ module ActiveArchive
       reflection.options[:dependent] == :destroy
     end
 
+    def reflection_dependents(table_name)
+      send(table_name)
+    end
+
     def relection_klass(table_name)
       table_name.classify.constantize
+    end
+
+    def reflection_marco(reflection)
+      reflection.macro.to_s.gsub('has_', '').to_sym
     end
 
   end
