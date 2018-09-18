@@ -13,12 +13,37 @@ module ActiveArchive
       end
     end
 
+    def archival?
+      return destroyed? if unarchivable?
+
+      (will_save_change_to_archived_at? || saved_change_to_archived_at?) && archived?
+    end
+
     def archivable?
       respond_to?(:archived_at)
     end
 
     def archived?
       archivable? ? !archived_at.nil? : destroyed?
+    end
+
+    def archive
+      return destroy if unarchivable?
+
+      with_transaction_returning_status do
+        run_callbacks :archive do
+          mark_as_archived
+          mark_relections_as_archived
+
+          self
+        end
+      end
+    end
+
+    def unarchival?
+      return !destroyed? if unarchivable?
+
+      (will_save_change_to_archived_at? || saved_change_to_archived_at?) && unarchived?
     end
 
     def unarchived?
@@ -36,19 +61,6 @@ module ActiveArchive
         run_callbacks :unarchive do
           mark_as_unarchived
           mark_relections_as_unarchived
-
-          self
-        end
-      end
-    end
-
-    def archive
-      return destroy if unarchivable?
-
-      with_transaction_returning_status do
-        run_callbacks :archive do
-          mark_as_archived
-          mark_relections_as_archived
 
           self
         end

@@ -178,6 +178,76 @@ describe ActiveArchive do
     end
   end
 
+  describe '.archival?' do
+    context 'with saved_change_to_archived_at?' do
+      it 'returns false when archived_at has not changed' do
+        user = User.create!
+
+        expect(user.archival?).to eq(false)
+      end
+
+      it 'returns true when archived_at changed' do
+        user = User.create!
+        user.archive
+
+        expect(user.archival?).to eq(true)
+      end
+    end
+
+    context 'with will_save_change_to_archived_at?' do
+      it 'returns true when archived_at changed' do
+        user = User.create!
+        user.archived_at = Time.now
+
+        expect(user.archival?).to eq(true)
+      end
+    end
+
+    context 'with destroyed?' do
+      it 'returns true when object destroyed' do
+        license = License.create!
+        license.archive
+
+        expect(license.archival?).to eq(true)
+      end
+    end
+  end
+
+  describe '.unarchival?' do
+    context 'with saved_change_to_archived_at?' do
+      it 'returns false when archived_at has not changed' do
+        user = User.create!
+
+        expect(user.unarchival?).to eq(false)
+      end
+
+      it 'returns true when archived_at changed' do
+        user = User.create!
+        user.archive
+        user.unarchive
+
+        expect(user.unarchival?).to eq(true)
+      end
+    end
+
+    context 'with will_save_change_to_archived_at?' do
+      it 'returns true when archived_at changed' do
+        user = User.create!(archived_at: Time.now)
+        user.archived_at = nil
+
+        expect(user.unarchival?).to eq(true)
+      end
+    end
+
+    context 'with destroyed?' do
+      it 'returns true when object destroyed' do
+        license = License.create!
+
+        expect(license.unarchival?).to eq(true)
+      end
+    end
+  end
+
   describe '.to_archival' do
     it 'to be "Unarchived"' do
       user = User.create!
