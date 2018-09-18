@@ -24,6 +24,7 @@ Or install it yourself as:
 ## Table of Contents
 
 * [Configurations](#configurations)
+* [Usage](#usage)
 * [Methods](#methods)
 * [Scopes](#scopes)
 
@@ -35,6 +36,19 @@ Or install it yourself as:
 ```ruby
 ActiveArchive.configure do |config|
   config.all_records_archivable = false
+end
+```
+
+## Usage
+To work properly, models which could be archieved must have column `archieved_at` with type `datetime`. If the model table has not this column, record will be destroy instead of archieved.
+
+For adding this column, you can use this migration, as example:
+
+```ruby
+class AddArchivedAtColumns < ActiveRecord::Migration
+  def change
+    add_column :your_model, :archived_at, :datetime
+  end
 end
 ```
 
