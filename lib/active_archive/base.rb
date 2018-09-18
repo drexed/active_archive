@@ -30,7 +30,7 @@ module ActiveArchive
     end
 
     def unarchive
-      return if unarchivable?
+      return self if unarchivable?
 
       with_transaction_returning_status do
         run_callbacks :unarchive do
