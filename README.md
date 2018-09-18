@@ -29,6 +29,7 @@ Or install it yourself as:
 * [Usage](#usage)
 * [Methods](#methods)
 * [Scopes](#scopes)
+* [Callbacks](#callbacks)
 
 ## Configurations
 
@@ -90,6 +91,14 @@ User.unarchive_all          #=> unarchives all User record and dependents
 User.archived.all           #=> returns only archived record
 User.unarchived.all         #=> returns only unarchived record
 ```
+
+## Callbacks
+
+**Options:**
+ * `before_archive`
+ * `after_archive`
+ * `before_unarchived`
+ * `after_unarchive`
 
 ## Contributing
 
