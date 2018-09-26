@@ -14,8 +14,6 @@ LineLength:
   Max: 100
 Lint/HandleExceptions:
   Enabled: false
-Lint/ScriptPermission:
-  Enabled: false
 Metrics/MethodLength:
   Enabled: false
 Metrics/ModuleLength:
