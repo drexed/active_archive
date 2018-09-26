@@ -1,15 +1,12 @@
 sudo: false
 language: ruby
 rvm:
-  - 2.5.1
+  - ruby-head
 before_install:
   - sudo apt-get install libxml2-dev
   - gem update --system
   - gem install bundler
   - bundle install
-install:
-  - rake bundle:clean
-  - rake bundle:install
 script:
   - bundle exec rspec .
 notifications:
