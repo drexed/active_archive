@@ -8,6 +8,6 @@ before_install:
   - gem install bundler
   - bundle install
 script:
-  - bundle exec rspec .
+  - bundle exec rake
 notifications:
   disable: true
