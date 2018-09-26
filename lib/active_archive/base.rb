@@ -83,6 +83,7 @@ module ActiveArchive
       save(validate: false)
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def mark_relections_as_archived
       self.class.reflections.each do |table_name, reflection|
         next unless dependent_destroy?(reflection)
@@ -100,6 +101,7 @@ module ActiveArchive
         dependents.send(action)
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def mark_relections_as_unarchived
       self.class.reflections.each do |table_name, reflection|

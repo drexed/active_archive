@@ -9,16 +9,16 @@ class User < ApplicationRecord
   has_many :cars, dependent: :destroy
   has_many :comments
 
-  before_unarchive :randomize_before!
-  after_archive :randomize_after!
+  before_unarchive :randomize_before
+  after_archive :randomize_after
 
   private
 
-  def randomize_before!
+  def randomize_before
     self.random = 3
   end
 
-  def randomize_after!
+  def randomize_after
     self.random = 5
   end
 

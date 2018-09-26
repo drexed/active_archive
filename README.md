@@ -33,7 +33,7 @@ Or install it yourself as:
 
 ## Configurations
 
-`rails generate active_archive:install` will generate the following file:
+`rails g active_archive:install` will generate the following file:
 `../config/initalizers/active_archive.rb`
 
 ```ruby
@@ -96,8 +96,8 @@ User.unarchived.all         #=> returns only unarchived record
 
 **Options:**
  * `before_archive`
- * `after_archive`
  * `before_unarchived`
+ * `after_archive`
  * `after_unarchive`
 
 ## Contributing
