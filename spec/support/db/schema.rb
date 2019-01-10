@@ -20,6 +20,11 @@ ActiveRecord::Schema.define(version: 1) do
     t.timestamps null: false
   end
 
+  create_table :riders, force: true do |t|
+    t.references :requester, polymorphic: true
+    t.timestamps null: false
+  end
+
   create_table :comments, force: true do |t|
     t.references :user
     t.text :body

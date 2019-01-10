@@ -107,7 +107,7 @@ module ActiveArchive
       self.class.reflections.each do |table_name, reflection|
         next unless dependent_destroy?(reflection)
 
-        klass = relection_klass(table_name)
+        klass = relection_klass(reflection.class_name)
         next unless klass.archivable?
 
         dependents = reflection_dependents(table_name)
