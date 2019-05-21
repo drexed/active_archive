@@ -13,6 +13,13 @@ describe ActiveArchive do
         expect(user.archived_at.is_a?(Time)).to eq(true)
       end
 
+      it 'to be the timestamp for updated_at and archived_at' do
+        user = User.create!
+        user.archive
+
+        expect(user.updated_at).to eq(user.archived_at)
+      end
+
       it 'to be 1 when soft-deleted' do
         user = User.create!
         user.archive

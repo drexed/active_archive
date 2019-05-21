@@ -73,12 +73,20 @@ module ActiveArchive
 
     private
 
+    def updatable?
+      respond_to?(:updated_at)
+    end
+
     def mark_as_archived
-      self.archived_at = Time.now
+      timestamp = Time.now
+
+      self.updated_at = timestamp if updatable?
+      self.archived_at = timestamp
       save(validate: false)
     end
 
     def mark_as_unarchived
+      self.updated_at = Time.now if updatable?
       self.archived_at = nil
       save(validate: false)
     end
