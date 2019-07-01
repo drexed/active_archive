@@ -3,6 +3,8 @@
 [![Gem Version](https://badge.fury.io/rb/active_archive.svg)](http://badge.fury.io/rb/active_archive)
 [![Build Status](https://travis-ci.org/drexed/active_archive.svg?branch=master)](https://travis-ci.org/drexed/active_archive)
 
+**NOTE** ActiveArchive has been deprecated in favor of [Lite::Archive](https://github.com/drexed/lite-archive). Its a drop-in replacement, so please make the switch as soon as possible.
+
 ActiveArchive is a library for preventing database records from being destroyed.
 
 **NOTE: version >= '6.0.0' has a breaking change with the migration timestamps, initializer options, and model/record callbacks.**
